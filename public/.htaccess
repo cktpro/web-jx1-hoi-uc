@@ -1,0 +1,12 @@
+Options +FollowSymlinks
+Options -Indexes
+RewriteEngine On
+
+# Bỏ qua file và thư mục thực
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Tất cả request về index.php
+RewriteRule ^ index.php [QSA,L]
+
+ErrorDocument 404 /index.php

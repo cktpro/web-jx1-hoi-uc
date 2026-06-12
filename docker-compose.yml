@@ -1,0 +1,46 @@
+services:
+  web:
+    build: .
+    platform: linux/arm64
+    ports:
+      - "8090:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    platform: linux/arm64
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/00-init.sql
+      - ./docker/init-gcpos.sql:/docker-entrypoint-initdb.d/01-gcpos.sql
+      - ./docker/homejx-full.sql:/docker-entrypoint-initdb.d/02-homejx.sql
+      - ./docker/mysql.cnf:/etc/mysql/conf.d/custom.cnf
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: arm64v8/phpmyadmin
+    platform: linux/arm64
+    ports:
+      - "8091:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: ""
+    depends_on:
+      - db
+
+volumes:
+  db_data:
