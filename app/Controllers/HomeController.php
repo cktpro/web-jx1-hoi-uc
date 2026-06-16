@@ -9,7 +9,7 @@ class HomeController extends Controller {
         $news     = $post->getByCategory('tin-tuc', 20);
         $events   = $post->getByCategory('su-kien', 20);
         $guides   = $post->getByCategory('cam-nang', 20);
-        $features = $post->getByCategory('tinh-nang', 20);
+        $features = $post->findByIds(featured_load());
 
         $this->view('layouts/main', [
             'config'       => $config,

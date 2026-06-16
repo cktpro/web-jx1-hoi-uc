@@ -62,6 +62,15 @@ class Post extends Model {
         return $this->execute('DELETE FROM NewsTables WHERE ID = ?', [$id]);
     }
 
+    public function findByIds(array $ids): array {
+        if (empty($ids)) return [];
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        return $this->query(
+            "SELECT * FROM NewsTables WHERE ID IN ($placeholders) ORDER BY ID DESC",
+            array_map('intval', $ids)
+        );
+    }
+
     public function search(string $keyword, int $limit = 20): array {
         return $this->query(
             "SELECT * FROM NewsTables

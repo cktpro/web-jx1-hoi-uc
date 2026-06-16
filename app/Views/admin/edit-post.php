@@ -13,9 +13,12 @@
             <div class="card-body">
                 <div class="form-group">
                     <label>Danh mục <span class="text-danger">*</span></label>
-                    <input type="text" id="postCategory" class="form-control"
-                           value="<?= htmlspecialchars($post['Catagory'] ?? '') ?>"
-                           placeholder="vd: tin-tuc, su-kien, cam-nang, tinh-nang">
+                    <select id="postCategory" class="form-control">
+                        <option value="tin-tuc"   <?= ($post['Catagory'] ?? '') === 'tin-tuc'   ? 'selected' : '' ?>>Tin tức</option>
+                        <option value="su-kien"   <?= ($post['Catagory'] ?? '') === 'su-kien'   ? 'selected' : '' ?>>Sự kiện</option>
+                        <option value="cam-nang"  <?= ($post['Catagory'] ?? '') === 'cam-nang'  ? 'selected' : '' ?>>Cẩm nang</option>
+                        <option value="tinh-nang" <?= ($post['Catagory'] ?? '') === 'tinh-nang' ? 'selected' : '' ?>>Tính năng mới cập nhật</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Tiêu đề <span class="text-danger">*</span></label>

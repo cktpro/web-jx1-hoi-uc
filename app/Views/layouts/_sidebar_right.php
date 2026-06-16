@@ -1,6 +1,7 @@
 <div class="right__containner">
     <div class="right__content">
-        <a class="right__tongkim-notify" title="Xử phạt tống kim" href="/tin-tuc/thong-bao-cac-van-de-tong-kim.html"></a>
+        <a class="right__tongkim-notify" title="Xử phạt tống kim"
+           href="<?= htmlspecialchars($config['link_tongkim'] ?? '/tin-tuc/thong-bao-cac-van-de-tong-kim.html') ?>"></a>
 
         <!-- Tính năng mới cập nhật -->
         <div class="right__new-feature--content">

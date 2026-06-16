@@ -36,6 +36,27 @@
                            value="<?= htmlspecialchars($cfg['link_hotro'] ?? '') ?>"
                            placeholder="https://...">
                 </div>
+                <hr>
+                <div class="form-group">
+                    <label><i class="fa fa-image text-secondary mr-1"></i> Ảnh Banner bảo trì (bottom__maintenance)</label>
+                    <input type="url" id="cfg-img_maintenance" class="form-control"
+                           value="<?= htmlspecialchars($cfg['img_maintenance'] ?? '') ?>"
+                           placeholder="https://... hoặc /assets/imgs/maintenance_up.png">
+                    <small class="form-text text-muted">Để trống dùng ảnh mặc định trong CSS.</small>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa fa-image text-secondary mr-1"></i> Ảnh Tống Kim Notify (right__tongkim-notify)</label>
+                    <input type="url" id="cfg-img_tongkim" class="form-control"
+                           value="<?= htmlspecialchars($cfg['img_tongkim'] ?? '') ?>"
+                           placeholder="https://... hoặc /assets/imgs/tongkim.png">
+                    <small class="form-text text-muted">Để trống dùng ảnh mặc định trong CSS.</small>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa fa-link text-secondary mr-1"></i> Link Tống Kim Notify</label>
+                    <input type="url" id="cfg-link_tongkim" class="form-control"
+                           value="<?= htmlspecialchars($cfg['link_tongkim'] ?? '') ?>"
+                           placeholder="/tin-tuc/thong-bao-cac-van-de-tong-kim.html">
+                </div>
             </div>
         </div>
     </div>
@@ -64,10 +85,13 @@ function saveConfig() {
     $msg.removeClass('text-success text-danger').html('<i class="fa fa-spinner fa-spin"></i> Đang lưu...');
 
     $.post('/admin/ajax/config/save', {
-        taigame:      $('#cfg-taigame').val(),
-        taigameios:   $('#cfg-taigameios').val(),
-        link_dangky:  $('#cfg-link_dangky').val(),
-        link_hotro:   $('#cfg-link_hotro').val(),
+        taigame:          $('#cfg-taigame').val(),
+        taigameios:       $('#cfg-taigameios').val(),
+        link_dangky:      $('#cfg-link_dangky').val(),
+        link_hotro:       $('#cfg-link_hotro').val(),
+        img_maintenance:  $('#cfg-img_maintenance').val(),
+        img_tongkim:      $('#cfg-img_tongkim').val(),
+        link_tongkim:     $('#cfg-link_tongkim').val(),
     }, function(r) {
         if (r.status) {
             $msg.addClass('text-success').html('<i class="fa fa-check"></i> ' + r.msg);

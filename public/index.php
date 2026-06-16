@@ -58,6 +58,11 @@ $router->post('/dai-ly/ajax/nap-knb', [AgentController::class, 'napKnbAjax']);
 $router->post('/dai-ly/ajax/doi-mat-khau', [AgentController::class, 'changePasswordAjax']);
 $router->post('/dai-ly/ajax/doi-sdt', [AgentController::class, 'changePhoneAjax']);
 $router->post('/dai-ly/ajax/check-user', [AgentController::class, 'checkUserAjax']);
+$router->get('/dai-ly/agents', [AgentController::class, 'agents']);
+$router->post('/dai-ly/ajax/nap-knb-agent', [AgentController::class, 'napKnbAgentAjax']);
+$router->get('/dai-ly/profile', [AgentController::class, 'profileForm']);
+$router->post('/dai-ly/ajax/cap-nhat-thong-tin', [AgentController::class, 'profileUpdateAjax']);
+$router->post('/dai-ly/ajax/doi-mat-khau-ca-nhan', [AgentController::class, 'ownPasswordAjax']);
 
 // ── Auth người chơi ───────────────────────────────────────────
 $router->get('/user/login', [AuthController::class, 'loginForm']);
@@ -90,6 +95,7 @@ $router->post('/admin/posts/add', [AdminController::class, 'addPost']);
 $router->get('/admin/posts/edit/{id}', [AdminController::class, 'editPostForm']);
 $router->post('/admin/posts/edit/{id}', [AdminController::class, 'editPost']);
 $router->post('/admin/ajax/posts/edit/{id}', [AdminController::class, 'editPostAjax']);
+$router->post('/admin/ajax/posts/featured', [AdminController::class, 'featuredToggleAjax']);
 $router->get('/admin/posts/delete/{id}', [AdminController::class, 'deletePost']);
 $router->get('/admin/config', [AdminController::class, 'config']);
 $router->post('/admin/ajax/config/save', [AdminController::class, 'configSaveAjax']);

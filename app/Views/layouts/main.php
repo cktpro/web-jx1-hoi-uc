@@ -91,9 +91,10 @@
             }
             .mobile-left-top {
                 display: flex;
-                justify-content: center;
-                gap: 10px;
+                justify-content: space-evenly;
+                align-items: center;
                 margin: 10px auto;
+                width: 100%;
             }
             .mobile-navbar {
                 display: flex;
@@ -129,9 +130,13 @@
                 align-items: center;
                 padding: 4px 0;
                 width: 100%;
+                gap: 10px;
             }
-            .mobile-bottom-sections .mobile-features { order: 1; width: 100%; }
-            .mobile-bottom-sections .mobile-timeline { order: 2; width: 100%; }
+            .mobile-bottom-sections .mobile-features { order: 1; width: 100%; margin-bottom: 0; }
+            .mobile-bottom-sections .mobile-timeline { order: 2; width: 100%; margin-bottom: 0; }
+
+            .center__container-item.post__container { margin-bottom: 10px; }
+            .mobile-top-sections { margin-bottom: 10px; }
 
             /* Bottom: 2 ảnh thông báo full width, xếp dọc */
             .center__container-item.bottom__container {
@@ -167,7 +172,7 @@
                 width: 100% !important;
                 height: calc(100vw * 340 / 479) !important;
                 background: url('/assets/imgs/bg-post.png') top center no-repeat !important;
-                background-size: 100% auto !important;
+                background-size: 100% 100% !important;
                 margin-bottom: 6px !important;
                 padding: 6px 0 !important;
                 overflow: hidden !important;
@@ -183,7 +188,7 @@
             }
             .mobile-bottom-sections .left__container-timeline {
                 width: 100% !important;
-                height: calc(100vw * 340 / 479 + 200px) !important;
+                /* height: calc(100vw * 340 / 479 + 200px) !important; */
                 background: url('/assets/imgs/bg-post.png') top center no-repeat !important;
                 background-size: 100% 100% !important;
                 margin-left: 0 !important;
@@ -198,6 +203,7 @@
             .mobile-section-title {
                 display: block !important;
                 width: 100% !important;
+                height: 11.5% !important;
                 text-align: center !important;
                 color: #f5c518 !important;
                 font-weight: 700 !important;
@@ -216,6 +222,12 @@
             }
         }
     </style>
+    <?php if (!empty($config['img_maintenance'])): ?>
+    <style>.bottom__content .bottom__maintenance { background-image: url('<?= htmlspecialchars($config['img_maintenance']) ?>') !important; }</style>
+    <?php endif; ?>
+    <?php if (!empty($config['img_tongkim'])): ?>
+    <style>.right__tongkim-notify, .right__tongkim-notify:hover { background-image: url('<?= htmlspecialchars($config['img_tongkim']) ?>') !important; }</style>
+    <?php endif; ?>
     <script src="/assets/js/swiper-bundle.min.js"></script>
     <script src="/assets/js/jquery.min.js"></script>
     <script src="/assets/js/jquery.cookie.js"></script>

@@ -27,6 +27,7 @@
         .u-topbar .brand { font-size: 18px; font-weight: 700; color: #2255cc; text-decoration: none; margin-right: auto; }
         .u-topbar .brand span { color: #333; }
         .u-topbar .badge-agent { background: linear-gradient(135deg,#2255cc,#1a3fa0); color:#fff; border-radius:4px; padding:2px 8px; font-size:10px; font-weight:700; letter-spacing:1px; margin-left:8px; vertical-align:middle; }
+        .u-topbar .badge-super { background: linear-gradient(135deg,#b8860b,#d4a843); color:#fff; border-radius:4px; padding:2px 8px; font-size:10px; font-weight:700; letter-spacing:1px; margin-left:8px; vertical-align:middle; }
         .u-topbar .top-links a { color: #555; text-decoration: none; margin-left: 20px; font-size: 13px; }
         .u-topbar .top-links a:hover { color: #2255cc; }
         .u-topbar .top-links .username { color: #2255cc; font-weight: 600; }
@@ -99,7 +100,14 @@
 <body>
 
 <div class="u-topbar">
-    <a href="/dai-ly" class="brand">JX1 <span>Portal</span> <span class="badge-agent">ĐẠI LÝ</span></a>
+    <?php $isSA = (int)($_SESSION['agent_role'] ?? 0) === 3; ?>
+    <a href="/dai-ly" class="brand">JX1 <span>Portal</span>
+        <?php if ($isSA): ?>
+            <span class="badge-super">ĐẠI LÝ TỔNG</span>
+        <?php else: ?>
+            <span class="badge-agent">ĐẠI LÝ</span>
+        <?php endif; ?>
+    </a>
     <div class="top-links">
         <span class="username"><i class="fa fa-user-circle-o mr-1"></i><?= htmlspecialchars($_SESSION['agent'] ?? '') ?></span>
         <a href="/"><i class="fa fa-home mr-1"></i>Trang chủ</a>
@@ -112,7 +120,13 @@
         <div class="avatar-box">
             <div class="avatar-icon"><i class="fa fa-briefcase"></i></div>
             <div class="avatar-name"><?= htmlspecialchars($_SESSION['agent'] ?? '') ?></div>
-            <div class="avatar-sub"><i class="fa fa-star mr-1"></i>ĐẠI LÝ</div>
+            <div class="avatar-sub">
+                <?php if ($isSA): ?>
+                    <i class="fa fa-star mr-1"></i>ĐẠI LÝ TỔNG
+                <?php else: ?>
+                    <i class="fa fa-star mr-1"></i>ĐẠI LÝ
+                <?php endif; ?>
+            </div>
         </div>
 
         <div class="nav-section">Tổng quan</div>
@@ -123,6 +137,16 @@
         <div class="nav-section">Người dùng</div>
         <a href="/dai-ly/users" class="nav-item <?= str_contains($_SERVER['REQUEST_URI'], '/dai-ly/users') ? 'active' : '' ?>">
             <i class="fa fa-users"></i> Quản lý người dùng
+        </a>
+        <?php if ($isSA): ?>
+        <a href="/dai-ly/agents" class="nav-item <?= str_contains($_SERVER['REQUEST_URI'], '/dai-ly/agents') ? 'active' : '' ?>">
+            <i class="fa fa-sitemap"></i> Quản lý đại lý
+        </a>
+        <?php endif; ?>
+
+        <div class="nav-section">Tài khoản</div>
+        <a href="/dai-ly/profile" class="nav-item <?= str_contains($_SERVER['REQUEST_URI'], '/dai-ly/profile') ? 'active' : '' ?>">
+            <i class="fa fa-user-o"></i> Thông tin cá nhân
         </a>
     </aside>
 

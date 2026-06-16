@@ -118,8 +118,13 @@ class User extends Model {
     }
 
     private function buildAgentLogWhere(string $agentName, int $days, string $from, string $to): array {
-        $where  = 'ActionBy = ?';
-        $params = [$agentName];
+        if ($agentName === '') {
+            $where  = '1=1';
+            $params = [];
+        } else {
+            $where  = 'ActionBy = ?';
+            $params = [$agentName];
+        }
         if ($from && $to) {
             $where   .= ' AND CAST(RechageDate AS DATE) BETWEEN ? AND ?';
             $params[] = $from;
@@ -130,11 +135,69 @@ class User extends Model {
         return [$where, $params];
     }
 
+    public function getAllAgents(): array {
+        return $this->query(
+            $this->baseSelect() . ' WHERE l.ActiveRoleID = 1 ORDER BY l.ID DESC'
+        );
+    }
+
     public function logRecharge(int $userId, string $username, int $amount, int $before, int $after, string $actionBy): bool {
         return $this->execute(
             "INSERT INTO RechageLogs (UserID, UserName, CoinValue, BeforeCoin, AfterCoin, RechageType, RechageDate, Status, ActionBy)
              VALUES (?, ?, ?, ?, ?, N'DAI_LY', GETDATE(), 1, ?)",
             [$userId, $username, $amount, $before, $after, $actionBy]
         );
+    }
+
+    public function logAgentTransfer(int $userId, string $username, int $amount, int $before, int $after, string $actionBy): bool {
+        return $this->execute(
+            "INSERT INTO RechageLogs (UserID, UserName, CoinValue, BeforeCoin, AfterCoin, RechageType, RechageDate, Status, ActionBy)
+             VALUES (?, ?, ?, ?, ?, N'TONG_TO_AGENT', GETDATE(), 1, ?)",
+            [$userId, $username, $amount, $before, $after, $actionBy]
+        );
+    }
+
+    public function getAgentTransferLogs(string $agentName, int $limit, int $offset, int $days = 0, string $from = '', string $to = ''): array {
+        [$timeWhere, $params] = $this->buildTimeWhere($days, $from, $to);
+        array_unshift($params, $agentName);
+        return $this->query(
+            "SELECT * FROM RechageLogs
+             WHERE ActionBy = ? AND RechageType = 'TONG_TO_AGENT' $timeWhere
+             ORDER BY ID DESC
+             OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY",
+            $params
+        );
+    }
+
+    public function countAgentTransferLogs(string $agentName, int $days = 0, string $from = '', string $to = ''): int {
+        [$timeWhere, $params] = $this->buildTimeWhere($days, $from, $to);
+        array_unshift($params, $agentName);
+        $row = $this->queryOne(
+            "SELECT COUNT(*) AS c FROM RechageLogs
+             WHERE ActionBy = ? AND RechageType = 'TONG_TO_AGENT' $timeWhere",
+            $params
+        );
+        return (int)($row['c'] ?? 0);
+    }
+
+    public function sumAgentTransferLogs(string $agentName, int $days = 0, string $from = '', string $to = ''): int {
+        [$timeWhere, $params] = $this->buildTimeWhere($days, $from, $to);
+        array_unshift($params, $agentName);
+        $row = $this->queryOne(
+            "SELECT ISNULL(SUM(CoinValue), 0) AS s FROM RechageLogs
+             WHERE ActionBy = ? AND RechageType = 'TONG_TO_AGENT' $timeWhere",
+            $params
+        );
+        return (int)($row['s'] ?? 0);
+    }
+
+    private function buildTimeWhere(int $days, string $from, string $to): array {
+        if ($from && $to) {
+            return [' AND CAST(RechageDate AS DATE) BETWEEN ? AND ?', [$from, $to]];
+        }
+        if ($days > 0) {
+            return [" AND RechageDate >= DATEADD(DAY, -$days, GETDATE())", []];
+        }
+        return ['', []];
     }
 }

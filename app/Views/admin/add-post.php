@@ -8,8 +8,13 @@
                 <form method="post" action="/admin/posts/add">
                     <div class="form-group">
                         <label for="postCategory">Danh mục <span class="text-danger">*</span></label>
-                        <input type="text" name="postCategory" id="postCategory" class="form-control"
-                               placeholder="vd: tin-tuc, su-kien, cam-nang, tinh-nang" required>
+                        <select name="postCategory" id="postCategory" class="form-control" required>
+                            <option value="">-- Chọn danh mục --</option>
+                            <option value="tin-tuc">Tin tức</option>
+                            <option value="su-kien">Sự kiện</option>
+                            <option value="cam-nang">Cẩm nang</option>
+                            <option value="tinh-nang">Tính năng mới cập nhật</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="postTitle">Tiêu đề <span class="text-danger">*</span></label>

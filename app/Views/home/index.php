@@ -93,13 +93,13 @@
 <div class="center__container-item post__container">
     <div class="post__content">
         <div class="post__tabs">
-            <div class="post__button post__active" data-target="#news-tab-1" data-slug="c-tin-tuc">
+            <div class="post__button post__active" data-target="#news-tab-1" data-slug="tin-tuc">
                 <i class="uil uil-graduation-cap post__icon"></i>Tin tức
             </div>
-            <div class="post__button" data-target="#news-tab-2" data-slug="c-su-kien">
+            <div class="post__button" data-target="#news-tab-2" data-slug="su-kien">
                 <i class="uil uil-graduation-cap post__icon"></i>Sự kiện
             </div>
-            <div class="post__button" data-target="#news-tab-4" data-slug="c-cam-nang">
+            <div class="post__button" data-target="#news-tab-4" data-slug="cam-nang">
                 <i class="uil uil-graduation-cap post__icon"></i>Cẩm Nang
             </div>
             <div class="post__button-more server-moi">

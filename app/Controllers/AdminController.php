@@ -32,12 +32,17 @@ class AdminController extends Controller {
 
     public function index(): void {
         $this->authAdmin();
-        $db         = db_portal();
-        $totalPosts = $db->query('SELECT COUNT(*) AS c FROM NewsTables')->fetch()['c'] ?? 0;
+        $db            = db_portal();
+        $totalPosts    = $db->query('SELECT COUNT(*) AS c FROM NewsTables')->fetch()['c'] ?? 0;
+        $totalUsers    = $db->query('SELECT COUNT(*) AS c FROM LoginTables')->fetch()['c'] ?? 0;
+        $config        = siteconfig_load();
+        $downloadCount = (int)($config['download_count'] ?? 0);
         $this->view('layouts/admin', [
             'totalPosts'      => $totalPosts,
             'totalCats'       => 0,
             'totalActivities' => 0,
+            'totalUsers'      => $totalUsers,
+            'downloadCount'   => $downloadCount,
             'content_view'    => 'admin/dashboard',
         ]);
     }
@@ -50,8 +55,23 @@ class AdminController extends Controller {
         $this->view('layouts/admin', [
             'posts'        => $posts,
             'page'         => $page,
+            'featured'     => featured_load(),
             'content_view' => 'admin/posts',
         ]);
+    }
+
+    public function featuredToggleAjax(): void {
+        $this->authAdmin();
+        $id  = (int)($_POST['id'] ?? 0);
+        if (!$id) { $this->json(['status' => false]); return; }
+        $ids = featured_load();
+        if (in_array($id, $ids)) {
+            $ids = array_filter($ids, fn($v) => $v !== $id);
+        } else {
+            $ids[] = $id;
+        }
+        featured_save($ids);
+        $this->json(['status' => true, 'active' => in_array($id, featured_load())]);
     }
 
     public function addPostForm(): void {
@@ -130,7 +150,7 @@ class AdminController extends Controller {
     public function configSaveAjax(): void {
         $this->authAdmin();
         $current = siteconfig_load();
-        $fields  = ['taigame', 'taigameios', 'link_dangky', 'link_hotro'];
+        $fields  = ['taigame', 'taigameios', 'link_dangky', 'link_hotro', 'img_maintenance', 'img_tongkim', 'link_tongkim'];
         foreach ($fields as $f) {
             if (isset($_POST[$f])) {
                 $current[$f] = trim($_POST[$f]);

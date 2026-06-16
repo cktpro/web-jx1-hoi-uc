@@ -30,6 +30,13 @@ class PostController extends Controller {
         $limit  = 20;
         $offset = ($page - 1) * $limit;
 
+        $titleMap = [
+            'tin-tuc'   => 'Tin tức',
+            'su-kien'   => 'Sự kiện',
+            'tinh-nang' => 'Tính năng',
+            'cam-nang'  => 'Cẩm nang',
+        ];
+
         $postModel = new Post($db);
         $posts     = $postModel->getByCategory($slug, $limit, $offset);
         $total     = $postModel->countByCategory($slug);
@@ -37,8 +44,7 @@ class PostController extends Controller {
 
         $this->view('layouts/category', [
             'config'       => $config,
-            'category'     => ['catSlug' => $slug, 'catTitle' => $slug],
-            'allCats'      => [],
+            'category'     => ['catSlug' => $slug, 'catTitle' => $titleMap[$slug] ?? $slug],
             'posts'        => $posts,
             'total'        => $total,
             'page'         => $page,

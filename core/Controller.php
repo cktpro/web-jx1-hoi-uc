@@ -40,6 +40,17 @@ class Controller {
         }
     }
 
+    protected function isSuperAgent(): bool {
+        return (int)($_SESSION['agent_role'] ?? 0) === 3;
+    }
+
+    protected function authSuperAgent(): void {
+        $this->authAgent();
+        if (!$this->isSuperAgent()) {
+            $this->redirect('/dai-ly');
+        }
+    }
+
     protected function authGameAdmin(): void {
         if (empty($_SESSION['useradmin']) || ($_SESSION['admin'] ?? '') !== '2205') {
             $this->redirect('/game-admin/login');

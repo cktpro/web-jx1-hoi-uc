@@ -31,8 +31,8 @@ $logo           = $config['logo_Img']        ?? '/assets/imgs/logo.png';
                         <a href="<?= htmlspecialchars($linkDangky) ?>" target="_blank" class="btn btn-payments"></a>
                         <div class="menu-dropdown-list">
                             <ul>
-                                <li><a href="<?= htmlspecialchars($linkTaigame) ?>">Android APK</a></li>
-                                <li><a href="<?= htmlspecialchars($linkTaigameios) ?>">iPhone IOS</a></li>
+                                <li><a href="<?= htmlspecialchars($linkTaigame) ?>">Android APK <i></i></a></li>
+                                <li><a href="<?= htmlspecialchars($linkTaigameios) ?>">iPhone IOS <i></i></a></li>
                             </ul>
                         </div>
                     </div>

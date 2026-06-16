@@ -116,6 +116,18 @@ $agentKnb = (int)($user['KCoin'] ?? 0);
 <div class="u-card mb-3">
     <div class="u-card-body py-2">
         <form method="get" class="d-flex align-items-center flex-wrap" style="gap:8px;">
+            <?php if (!empty($isSuperAgent)): ?>
+            <select name="agent" class="form-control form-control-sm" style="width:170px;" onchange="this.form.submit()">
+                <option value="">-- Tất cả đại lý --</option>
+                <?php foreach ($agentList as $a): ?>
+                    <option value="<?= htmlspecialchars($a['LoginName']) ?>"
+                        <?= $agentFilter === $a['LoginName'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($a['LoginName']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <?php endif; ?>
+
             <span style="font-size:13px;color:#555;white-space:nowrap;">Lọc nhanh:</span>
             <?php foreach ($dayOpts as $val => $label): ?>
                 <button type="submit" name="days" value="<?= $val ?>"
@@ -134,7 +146,7 @@ $agentKnb = (int)($user['KCoin'] ?? 0);
                 <button type="submit" class="btn btn-sm <?= $hasRange ? 'btn-primary-agent' : 'btn-outline-secondary' ?>">
                     <i class="fa fa-search mr-1"></i>Lọc
                 </button>
-                <?php if ($hasRange || $days > 0): ?>
+                <?php if ($hasRange || $days > 0 || $agentFilter): ?>
                     <a href="/dai-ly/users" class="btn btn-sm btn-outline-danger">
                         <i class="fa fa-times"></i>
                     </a>
@@ -165,6 +177,7 @@ $agentKnb = (int)($user['KCoin'] ?? 0);
                     <tr>
                         <th class="px-3">ID</th>
                         <th>Tài khoản</th>
+                        <?php if (!empty($isSuperAgent)): ?><th>Đại lý</th><?php endif; ?>
                         <th class="text-right">Số KNB</th>
                         <th class="text-right">Trước</th>
                         <th class="text-right">Sau</th>
@@ -178,6 +191,9 @@ $agentKnb = (int)($user['KCoin'] ?? 0);
                     <tr>
                         <td class="px-3 text-muted"><?= $log['ID'] ?></td>
                         <td><strong><?= htmlspecialchars($log['UserName'] ?? '') ?></strong></td>
+                        <?php if (!empty($isSuperAgent)): ?>
+                        <td style="color:#b8860b;font-size:12px;"><?= htmlspecialchars($log['ActionBy'] ?? '—') ?></td>
+                        <?php endif; ?>
                         <td class="text-right" style="color:#2d7a4f;font-weight:600;">+<?= number_format((int)$log['CoinValue']) ?></td>
                         <td class="text-right text-muted"><?= number_format((int)$log['BeforeCoin']) ?></td>
                         <td class="text-right"><?= number_format((int)$log['AfterCoin']) ?></td>
