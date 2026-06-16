@@ -1,15 +1,13 @@
 <?php
 
 class PaymentController extends Controller {
-    public function cardForm(): void {
+    public function napknbForm(): void {
         $this->authUser();
-        $db = db_portal();
-        $config = (new SiteConfig($db))->get();
-        $user = (new User($db))->getInfo($_SESSION['username']);
+        $user = (new User(db_portal()))->getInfo($_SESSION['username']);
         $this->view('layouts/user', [
-            'config'       => $config,
+            'config'       => siteconfig_load(),
             'user'         => $user,
-            'content_view' => 'payment/card',
+            'content_view' => 'user/napknb',
         ]);
     }
 
@@ -25,8 +23,8 @@ class PaymentController extends Controller {
             $this->json(['status' => 1, 'msg' => 'Vui lòng điền đầy đủ thông tin thẻ']);
         }
 
-        $db = db_portal();
-        $apiKey = (new SiteConfig($db))->get()['keyapi'] ?? '';
+        $cfg    = siteconfig_load();
+        $apiKey = $cfg['keyapi'] ?? '';
         $content = '72834d18c8ed1ec2a67cca2356c019ec';
         $url = "https://thesieutoc.net/chargingws/v2?APIkey={$apiKey}&mathe={$pin}&seri={$seri}&type={$type}&menhgia={$value}&content={$content}";
 
@@ -40,52 +38,22 @@ class PaymentController extends Controller {
         curl_close($ch);
 
         if (($result['status'] ?? '') === '00' || ($result['status'] ?? '') === 'thanhcong') {
-            (new Payment($db))->logCard($username, $seri, $pin, $type, $value);
-            $this->json(['status' => 0, 'msg' => 'Gửi thẻ thành công, đợi 30s - 1p!']);
+            (new Payment(db_portal()))->logCard($username, $seri, $pin, $type, $value);
+            $this->json(['status' => 0, 'msg' => 'Gửi thẻ thành công, vui lòng đợi 30 giây đến 1 phút!']);
         }
 
-        $this->json(['status' => 1, 'msg' => 'Gửi thẻ thất bại!']);
-    }
-
-    public function bankForm(): void {
-        $this->authUser();
-        $db = db_portal();
-        $config = (new SiteConfig($db))->get();
-        $user = (new User($db))->getInfo($_SESSION['username']);
-        $bank = explode(';', $config['atmbank'] ?? '');
-        $this->view('layouts/user', [
-            'config'       => $config,
-            'user'         => $user,
-            'bank'         => $bank,
-            'content_view' => 'payment/bank',
-        ]);
-    }
-
-    public function momoForm(): void {
-        $this->authUser();
-        $db = db_portal();
-        $config = (new SiteConfig($db))->get();
-        $user = (new User($db))->getInfo($_SESSION['username']);
-        $momo = explode(';', $config['momo'] ?? '');
-        $this->view('layouts/user', [
-            'config'       => $config,
-            'user'         => $user,
-            'momo'         => $momo,
-            'content_view' => 'payment/momo',
-        ]);
+        $this->json(['status' => 1, 'msg' => 'Gửi thẻ thất bại, vui lòng kiểm tra lại thông tin!']);
     }
 
     public function history(): void {
         $this->authUser();
-        $db = db_portal();
-        $logs = (new Payment($db))->getHistory($_SESSION['username']);
-        $config = (new SiteConfig($db))->get();
-        $user = (new User($db))->getInfo($_SESSION['username']);
+        $user = (new User(db_portal()))->getInfo($_SESSION['username']);
+        $logs = (new Payment(db_portal()))->getHistory($_SESSION['username']);
         $this->view('layouts/user', [
-            'config'       => $config,
+            'config'       => siteconfig_load(),
             'user'         => $user,
             'logs'         => $logs,
-            'content_view' => 'payment/history',
+            'content_view' => 'user/payment-history',
         ]);
     }
 }

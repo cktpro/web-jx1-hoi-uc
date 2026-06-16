@@ -1,17 +1,15 @@
 <div class="detail-content">
     <div class="head">
-        <h3><?= htmlspecialchars($post['postTitle']) ?></h3>
+        <h3><?= htmlspecialchars($post['Title']) ?></h3>
         <p class="time">
-            <?= date('d/m/Y', strtotime($post['postDate'])) ?>
-            <?php foreach ($categories as $cat): ?>
+            <?= date('d/m/Y', strtotime($post['DateTime'])) ?>
             &nbsp;|&nbsp;
-            <a href="/<?= htmlspecialchars($cat['catSlug']) ?>"><?= htmlspecialchars($cat['catTitle']) ?></a>
-            <?php endforeach; ?>
+            <a href="/<?= htmlspecialchars($post['Catagory']) ?>"><?= htmlspecialchars($post['Catagory']) ?></a>
         </p>
     </div>
     <div class="body">
         <div class="content">
-            <?= $post['postCont'] ?>
+            <?= $post['Context'] ?>
         </div>
 
         <?php if (!empty($related)): ?>
@@ -19,10 +17,10 @@
             <div class="post__related-list">
                 <?php foreach ($related as $r): ?>
                 <div class="title">
-                    <a class="tit" href="/<?= htmlspecialchars($r['postSlug']) ?>.html"
-                       title="<?= htmlspecialchars($r['postTitle']) ?>" target="_blank" rel="nofollow">
-                        <?= htmlspecialchars($r['postTitle']) ?>
-                        <span class="time"><?= date('d/m', strtotime($r['postDate'])) ?></span>
+                    <a class="tit" href="<?= post_url($r) ?>"
+                       title="<?= htmlspecialchars($r['Title']) ?>" target="_blank" rel="nofollow">
+                        <?= htmlspecialchars($r['Title']) ?>
+                        <span class="time"><?= date('d/m', strtotime($r['DateTime'])) ?></span>
                     </a>
                 </div>
                 <?php endforeach; ?>

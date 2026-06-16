@@ -17,3 +17,34 @@ function url_slug(string $str): string {
     $str = trim($str, '-');
     return $str ?: 'n-a';
 }
+
+function post_url(array $post): string {
+    $slug = $post['Slug'] ?? url_slug($post['Title'] ?? '');
+    return '/' . ($slug ?: $post['ID']) . '.html';
+}
+
+function siteconfig_load(): array {
+    $file = APP_PATH . '/storage/siteconfig.json';
+    if (!file_exists($file)) return [];
+    return json_decode(file_get_contents($file), true) ?? [];
+}
+
+function siteconfig_save(array $data): void {
+    file_put_contents(
+        APP_PATH . '/storage/siteconfig.json',
+        json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+    );
+}
+
+function hoatdong_load(): array {
+    $file = APP_PATH . '/storage/hoatdong.json';
+    if (!file_exists($file)) return [];
+    return json_decode(file_get_contents($file), true) ?? [];
+}
+
+function hoatdong_save(array $data): void {
+    file_put_contents(
+        APP_PATH . '/storage/hoatdong.json',
+        json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+    );
+}

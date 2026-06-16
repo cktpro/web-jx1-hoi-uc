@@ -7,24 +7,18 @@
             <div class="card-body">
                 <form method="post" action="/admin/posts/add">
                     <div class="form-group">
+                        <label for="postCategory">Danh mục <span class="text-danger">*</span></label>
+                        <input type="text" name="postCategory" id="postCategory" class="form-control"
+                               placeholder="vd: tin-tuc, su-kien, cam-nang, tinh-nang" required>
+                    </div>
+                    <div class="form-group">
                         <label for="postTitle">Tiêu đề <span class="text-danger">*</span></label>
-                        <input type="text" name="postTitle" id="postTitle" class="form-control" placeholder="Nhập tiêu đề bài viết..." required>
-                    </div>
-                    <div class="form-group">
-                        <label for="postImage">Ảnh đại diện (URL)</label>
-                        <input type="text" name="postImage" id="postImage" class="form-control" placeholder="https://...">
-                    </div>
-                    <div class="form-group">
-                        <label for="postDesc">Mô tả ngắn</label>
-                        <textarea name="postDesc" id="postDesc" class="form-control" rows="3" placeholder="Tóm tắt nội dung..."></textarea>
+                        <input type="text" name="postTitle" id="postTitle" class="form-control"
+                               placeholder="Nhập tiêu đề bài viết..." required>
                     </div>
                     <div class="form-group">
                         <label for="postCont">Nội dung</label>
                         <textarea name="postCont" id="postCont" placeholder="Nội dung bài viết..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="postTags">Tags</label>
-                        <input type="text" name="postTags" id="postTags" class="form-control" placeholder="tag1, tag2, tag3">
                     </div>
                     <div class="d-flex">
                         <button type="submit" class="btn btn-success mr-2" onclick="tinymce.triggerSave()">
@@ -35,25 +29,6 @@
                         </a>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <span><i class="fa fa-list-ul text-primary"></i> Danh mục</span>
-            </div>
-            <div class="card-body">
-                <?php foreach ($cats as $cat): ?>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox"
-                           name="cats[]" value="<?= $cat['catID'] ?>"
-                           id="cat<?= $cat['catID'] ?>">
-                    <label class="form-check-label" for="cat<?= $cat['catID'] ?>">
-                        <?= htmlspecialchars($cat['catTitle']) ?>
-                    </label>
-                </div>
-                <?php endforeach; ?>
             </div>
         </div>
     </div>

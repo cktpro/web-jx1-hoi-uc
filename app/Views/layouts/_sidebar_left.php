@@ -47,9 +47,7 @@
                             </div>
                             <div class="daily-content">
                                 <?php
-                                $allActivities = db_blog()
-                                    ->query('SELECT * FROM blog_hoatdong ORDER BY sapxep ASC')
-                                    ->fetchAll();
+                                $allActivities = hoatdong_load();
                                 foreach (['t2','t3','t4','t5','t6','t7','cn'] as $i => $dayKey):
                                 ?>
                                 <div class="day <?= $dayKey ?> list-content-daily" <?= $i === 0 ? 'style="display:block"' : '' ?>>
@@ -73,3 +71,18 @@
         </div>
     </div>
 </div>
+<script>
+(function() {
+    function trackDownload() {
+        var url = '/ajax/track-download';
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon(url, new FormData());
+        } else if (window.$) {
+            $.post(url);
+        }
+    }
+    document.querySelectorAll('.a-link-download, .a-link-download-miniclient').forEach(function(el) {
+        el.addEventListener('click', trackDownload);
+    });
+})();
+</script>

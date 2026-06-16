@@ -31,7 +31,7 @@
         <?php foreach (['slide_duoi_img','slide_duoi_img1','slide_duoi_img2','slide_duoi_img3','slide_duoi_img4'] as $key): ?>
         <?php if (empty($slidesBottom[$key])) continue; ?>
         <div class="slide__content grid swiper-slide">
-            <a class="slide__img" href="<?= htmlspecialchars($slides['slide_link1'] ?? '#') ?>">
+            <a class="slide__img" href="#">
                 <img src="<?= htmlspecialchars($slidesBottom[$key]) ?>" data-transition="fade"
                      onerror="this.src='/assets/imgs/slide-1.png'" alt="slide">
             </a>
@@ -81,9 +81,9 @@
     <div class="mobile-navbar">
         <div class="bottom__menu">
             <a class="bottom__menu-item-1" href="<?= htmlspecialchars($config['link_hotro'] ?? '#') ?>" target="_blank"></a>
-            <a class="bottom__menu-item-2" href="/tin-tuc/chu-dong-bao-ve-tai-san-canh-giac-voi-lua-dao.html"></a>
-            <a class="bottom__menu-item-3" href="/tinh-nang-moi.html"></a>
-            <a class="bottom__menu-item-4" href="/tin-tuc/huong-dan-tan-thu.html"></a>
+            <a class="bottom__menu-item-2" href="/tin-tuc"></a>
+            <a class="bottom__menu-item-3" href="/tinh-nang"></a>
+            <a class="bottom__menu-item-4" href="/cam-nang"></a>
         </div>
     </div>
 
@@ -121,22 +121,11 @@
                         <ul class="list custom-scrollbar">
                             <li>
                                 <?php foreach ($posts as $post): ?>
-                                <a class="post__title" href="/<?= htmlspecialchars($post['postSlug']) ?>.html"
-                                   target="_blank" rel="nofollow" title="<?= htmlspecialchars($post['postTitle']) ?>">
-                                    <span class="time">[<?= date('d/m', strtotime($post['postDate'])) ?>]</span>
-                                    <?= htmlspecialchars($post['postTitle']) ?>
+                                <a class="post__title" href="<?= post_url($post) ?>"
+                                   target="_blank" rel="nofollow" title="<?= htmlspecialchars($post['Title']) ?>">
+                                    <span class="time">[<?= date('d/m', strtotime($post['DateTime'])) ?>]</span>
+                                    <?= htmlspecialchars($post['Title']) ?>
                                 </a>
-                                <?php if (!empty($post['postImage'])): ?>
-                                <div class="cover">
-                                    <a href="/<?= htmlspecialchars($post['postSlug']) ?>.html" target="_blank">
-                                        <img src="<?= htmlspecialchars($post['postImage']) ?>"
-                                             alt="<?= htmlspecialchars($post['postTitle']) ?>"
-                                             onerror="this.src='/assets/imgs/no-image-post.png'"
-                                             style="height:80px;border-radius:4px;">
-                                    </a>
-                                </div>
-                                <p><?= mb_substr(strip_tags(html_entity_decode($post['postCont'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8')), 0, 250) ?>...</p>
-                                <?php endif; ?>
                                 <?php endforeach; ?>
                             </li>
                         </ul>
@@ -151,47 +140,42 @@
 <!-- Mobile only: Hoạt động + Tính năng (sau news) -->
 <div class="mobile-sections mobile-bottom-sections">
 
-        <!-- Hoạt động ngày -->
-        <div class="mobile-timeline">
-            <div class="left__container-item left__container-timeline">
+    <!-- Hoạt động ngày -->
+    <div class="mobile-timeline">
+        <div class="left__container-item left__container-timeline">
             <div class="mobile-section-title">Hoạt Động Hằng Ngày</div>
-                <div class="tabdaily">
-                    <div class="list-news-daily">
-                        <div role="tabpanel" class="tab-pane-sv" id="may-chu-mobile">
-                            <div class="daily">
-                                <div class="daily-inner">
-                                    <div class="tabs">
-                                        <ul>
-                                            <li class="tabs-item day-name-1"><a href="#" data-day="t2">T2</a></li>
-                                            <li class="tabs-item day-name-2"><a href="#" data-day="t3">T3</a></li>
-                                            <li class="tabs-item day-name-3"><a href="#" data-day="t4">T4</a></li>
-                                            <li class="tabs-item day-name-4"><a href="#" data-day="t5">T5</a></li>
-                                            <li class="tabs-item day-name-5"><a href="#" data-day="t6">T6</a></li>
-                                            <li class="tabs-item day-name-6"><a href="#" data-day="t7">T7</a></li>
-                                            <li class="tabs-item day-name-7"><a href="#" data-day="cn">CN</a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="daily-content">
-                                        <?php
-                                        $allActivities = db_blog()
-                                            ->query('SELECT * FROM blog_hoatdong ORDER BY sapxep ASC')
-                                            ->fetchAll();
-                                        foreach (['t2','t3','t4','t5','t6','t7','cn'] as $i => $dayKey):
-                                        ?>
-                                        <div class="day <?= $dayKey ?> list-content-daily" <?= $i === 0 ? 'style="display:block"' : '' ?>>
-                                            <div class="main-content custom-scrollbar">
-                                                <?php foreach ($allActivities as $act): ?>
-                                                <?php if ($act[$dayKey]): ?>
-                                                <div class="item">
-                                                    <div class="name"><?= htmlspecialchars($act['ten']) ?></div>
-                                                    <div class="time"><?= htmlspecialchars($act['thoigian']) ?></div>
-                                                </div>
-                                                <?php endif; ?>
-                                                <?php endforeach; ?>
+            <div class="tabdaily">
+                <div class="list-news-daily">
+                    <div role="tabpanel" class="tab-pane-sv" id="may-chu-mobile">
+                        <div class="daily">
+                            <div class="daily-inner">
+                                <div class="tabs">
+                                    <ul>
+                                        <li class="tabs-item day-name-1"><a href="#" data-day="t2">T2</a></li>
+                                        <li class="tabs-item day-name-2"><a href="#" data-day="t3">T3</a></li>
+                                        <li class="tabs-item day-name-3"><a href="#" data-day="t4">T4</a></li>
+                                        <li class="tabs-item day-name-4"><a href="#" data-day="t5">T5</a></li>
+                                        <li class="tabs-item day-name-5"><a href="#" data-day="t6">T6</a></li>
+                                        <li class="tabs-item day-name-6"><a href="#" data-day="t7">T7</a></li>
+                                        <li class="tabs-item day-name-7"><a href="#" data-day="cn">CN</a></li>
+                                    </ul>
+                                </div>
+                                <div class="daily-content">
+                                    <?php $allActivities = hoatdong_load(); ?>
+                                    <?php foreach (['t2','t3','t4','t5','t6','t7','cn'] as $i => $dayKey): ?>
+                                    <div class="day <?= $dayKey ?> list-content-daily" <?= $i === 0 ? 'style="display:block"' : '' ?>>
+                                        <div class="main-content custom-scrollbar">
+                                            <?php foreach ($allActivities as $act): ?>
+                                            <?php if (!empty($act[$dayKey])): ?>
+                                            <div class="item">
+                                                <div class="name"><?= htmlspecialchars($act['ten']) ?></div>
+                                                <div class="time"><?= htmlspecialchars($act['thoigian']) ?></div>
                                             </div>
+                                            <?php endif; ?>
+                                            <?php endforeach; ?>
                                         </div>
-                                        <?php endforeach; ?>
                                     </div>
+                                    <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
@@ -199,35 +183,33 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Tính năng mới -->
-        <div class="mobile-features">
-            <div class="right__new-feature--content">
+    <div class="mobile-features">
+        <div class="right__new-feature--content">
             <div class="mobile-section-title">Tính Năng Mới Cập Nhật</div>
-                <ul class="new__features-list custom-scrollbar">
-                    <?php foreach ($features ?? [] as $post): ?>
-                    <li>
-                        <a class="new__features-title" href="/<?= htmlspecialchars($post['postSlug']) ?>.html">
-                            <?= htmlspecialchars($post['postTitle']) ?>
-                        </a>
-                    </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+            <ul class="new__features-list custom-scrollbar">
+                <?php foreach ($features ?? [] as $post): ?>
+                <li>
+                    <a class="new__features-title" href="<?= post_url($post) ?>">
+                        <?= htmlspecialchars($post['Title']) ?>
+                    </a>
+                </li>
+                <?php endforeach; ?>
+            </ul>
         </div>
-
+    </div>
 </div>
 
 <!-- Bottom menu -->
 <div class="center__container-item bottom__container">
     <div class="bottom__content">
-        <a href="/tin-tuc/thong-bao-cac-van-de-tong-kim.html" title="Xử phạt tống kim" class="bottom__tongkim-notify"></a>
         <div class="bottom__maintenance"></div>
         <div class="bottom__menu">
             <a class="bottom__menu-item-1" href="<?= htmlspecialchars($config['link_hotro'] ?? '#') ?>" target="_blank"></a>
-            <a class="bottom__menu-item-2" href="/tin-tuc/chu-dong-bao-ve-tai-san-canh-giac-voi-lua-dao.html" target="_self"></a>
-            <a class="bottom__menu-item-3" href="/tinh-nang-moi.html" target="_self"></a>
-            <a class="bottom__menu-item-4" href="/tin-tuc/huong-dan-tan-thu.html" target="_self"></a>
+            <a class="bottom__menu-item-2" href="/tin-tuc" target="_self"></a>
+            <a class="bottom__menu-item-3" href="/tinh-nang" target="_self"></a>
+            <a class="bottom__menu-item-4" href="/cam-nang" target="_self"></a>
         </div>
     </div>
 </div>

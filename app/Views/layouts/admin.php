@@ -145,6 +145,12 @@
         <div class="sidebar-heading">Cấu hình</div>
         <ul class="nav flex-column">
             <li class="nav-item">
+                <a class="nav-link <?= str_contains($_SERVER['REQUEST_URI'], '/admin/config') ? 'active' : '' ?>"
+                   href="/admin/config">
+                    <i class="fa fa-cogs"></i> Cấu hình trang
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link <?= str_contains($_SERVER['REQUEST_URI'], '/admin/slide') ? 'active' : '' ?>"
                    href="/admin/slide">
                     <i class="fa fa-picture-o"></i> Quản lý Slide

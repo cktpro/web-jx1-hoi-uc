@@ -8,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="/assets/css/signin.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/assets/js/jquery-4.0.0.min.js"></script>
 </head>
 <body class="text-center">
 <form method="post" onsubmit="ajaxLogin(); return false;" class="form-signin">
@@ -31,6 +31,9 @@
         </div>
         <span id="msg"></span>
         <button class="btn btn-lg btn-info btn-block mt-2" type="submit">Đăng nhập</button>
+        <div class="mt-3">
+            <a href="/user/register">Chưa có tài khoản? Đăng ký ngay</a>
+        </div>
     </div>
 </form>
 <script>

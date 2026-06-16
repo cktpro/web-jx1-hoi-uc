@@ -1,78 +1,79 @@
 <?php
 
+// NewsTables: ID, Catagory (varchar), Title, Context, DateTime
 class Post extends Model {
     public function getRecent(int $limit = 20, int $offset = 0): array {
         return $this->query(
-            'SELECT * FROM blog_posts_seo ORDER BY postID DESC LIMIT ? OFFSET ?',
-            [$limit, $offset]
+            "SELECT * FROM NewsTables
+             ORDER BY ID DESC
+             OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY"
         );
     }
 
-    public function getByCategory(int $catId, int $limit = 20, int $offset = 0): array {
+    public function getByCategory(string $category, int $limit = 20, int $offset = 0): array {
         return $this->query(
-            'SELECT p.* FROM blog_posts_seo p
-             JOIN blog_post_cats pc ON p.postID = pc.postID
-             WHERE pc.catID = ?
-             ORDER BY p.postID DESC LIMIT ? OFFSET ?',
-            [$catId, $limit, $offset]
+            "SELECT * FROM NewsTables
+             WHERE Catagory = ?
+             ORDER BY ID DESC
+             OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY",
+            [$category]
         );
     }
 
-    public function countByCategory(int $catId): int {
+    public function countByCategory(string $category): int {
         $row = $this->queryOne(
-            'SELECT COUNT(*) as c FROM blog_post_cats WHERE catID = ?',
-            [$catId]
+            'SELECT COUNT(*) AS c FROM NewsTables WHERE Catagory = ?',
+            [$category]
         );
         return (int)($row['c'] ?? 0);
     }
 
-    public function findBySlug(string $slug): ?array {
-        return $this->queryOne(
-            'SELECT * FROM blog_posts_seo WHERE postSlug = ?',
-            [$slug]
-        );
-    }
-
     public function findById(int $id): ?array {
-        return $this->queryOne(
-            'SELECT * FROM blog_posts_seo WHERE postID = ?',
-            [$id]
-        );
+        return $this->queryOne('SELECT * FROM NewsTables WHERE ID = ?', [$id]);
     }
 
-    public function getCategories(int $postId): array {
-        return $this->query(
-            'SELECT c.catTitle, c.catSlug FROM blog_cats c
-             JOIN blog_post_cats pc ON c.catID = pc.catID
-             WHERE pc.postID = ?',
-            [$postId]
-        );
+    public function findBySlug(string $slug): ?array {
+        return $this->queryOne('SELECT * FROM NewsTables WHERE Slug = ?', [$slug]);
     }
 
     public function create(array $data): bool {
+        $slug = $data['slug'] ?? url_slug($data['title'] ?? '');
         return $this->execute(
-            'INSERT INTO blog_posts_seo (postTitle, postSlug, postCont, postDesc, postImage, postDate, postTags)
-             VALUES (?, ?, ?, ?, ?, NOW(), ?)',
-            [$data['title'], $data['slug'], $data['content'], $data['desc'], $data['image'], $data['tags']]
+            'INSERT INTO NewsTables (Catagory, Title, Context, Slug, DateTime)
+             VALUES (?, ?, ?, ?, GETDATE())',
+            [$data['category'], $data['title'], $data['content'], $slug]
         );
     }
 
+    public function getLastId(): int {
+        $row = $this->queryOne('SELECT SCOPE_IDENTITY() AS id');
+        return (int)($row['id'] ?? 0);
+    }
+
     public function update(int $id, array $data): bool {
+        $slug = $data['slug'] ?? url_slug($data['title'] ?? '');
         return $this->execute(
-            'UPDATE blog_posts_seo SET postTitle=?, postSlug=?, postCont=?, postDesc=?, postImage=?, postTags=?
-             WHERE postID=?',
-            [$data['title'], $data['slug'], $data['content'], $data['desc'], $data['image'], $data['tags'], $id]
+            'UPDATE NewsTables SET Catagory = ?, Title = ?, Context = ?, Slug = ? WHERE ID = ?',
+            [$data['category'], $data['title'], $data['content'], $slug, $id]
         );
     }
 
     public function delete(int $id): bool {
-        return $this->execute('DELETE FROM blog_posts_seo WHERE postID = ?', [$id]);
+        return $this->execute('DELETE FROM NewsTables WHERE ID = ?', [$id]);
     }
 
     public function search(string $keyword, int $limit = 20): array {
         return $this->query(
-            'SELECT * FROM blog_posts_seo WHERE postTitle LIKE ? OR postCont LIKE ? LIMIT ?',
-            ["%$keyword%", "%$keyword%", $limit]
+            "SELECT * FROM NewsTables
+             WHERE Title LIKE ? OR Context LIKE ?
+             ORDER BY ID DESC
+             OFFSET 0 ROWS FETCH NEXT $limit ROWS ONLY",
+            ["%$keyword%", "%$keyword%"]
         );
+    }
+
+    public function getCategories(): array {
+        $rows = $this->query('SELECT DISTINCT Catagory FROM NewsTables ORDER BY Catagory');
+        return array_column($rows, 'Catagory');
     }
 }

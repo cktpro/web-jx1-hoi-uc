@@ -1,26 +1,28 @@
 <?php
 
 class User extends Model {
-    // Tìm user trong bảng LoginTables (MySQL thay SQL Server)
+    private function baseSelect(): string {
+        return 'SELECT l.*, ISNULL(k.KCoin, 0) AS KCoin
+                FROM LoginTables l
+                LEFT JOIN KTCoins k ON k.UserName = l.LoginName';
+    }
+
     public function findByUsername(string $username): ?array {
         return $this->queryOne(
-            'SELECT * FROM LoginTables WHERE LoginName = ?',
+            $this->baseSelect() . ' WHERE l.LoginName = ?',
             [$username]
         );
     }
 
-    public function findPortalUser(string $username): ?array {
+    public function findById(int $id): ?array {
         return $this->queryOne(
-            'SELECT * FROM gc_user WHERE user = ? LIMIT 1',
-            [$username]
+            $this->baseSelect() . ' WHERE l.ID = ?',
+            [$id]
         );
     }
 
-    public function createPortalUser(string $username, string $passHash): bool {
-        return $this->execute(
-            'INSERT INTO gc_user (user, pass) VALUES (?, ?)',
-            [$username, $passHash]
-        );
+    public function getInfo(string $username): ?array {
+        return $this->findByUsername($username);
     }
 
     public function updatePassword(string $username, string $newPassHash): bool {
@@ -30,37 +32,109 @@ class User extends Model {
         );
     }
 
-    public function updatePortalPassword(string $username, string $newPassHash): bool {
+    public function updatePhone(string $username, string $phone): bool {
         return $this->execute(
-            'UPDATE gc_user SET pass = ? WHERE user = ?',
-            [$newPassHash, $username]
-        );
-    }
-
-    public function getInfo(string $username): ?array {
-        return $this->queryOne(
-            'SELECT * FROM gc_user WHERE user = ? LIMIT 1',
-            [$username]
+            'UPDATE LoginTables SET Phone = ? WHERE LoginName = ?',
+            [$phone, $username]
         );
     }
 
     public function getAll(int $limit = 10, int $offset = 0, string $search = ''): array {
+        $base = $this->baseSelect();
         if ($search) {
             return $this->query(
-                'SELECT * FROM gc_user WHERE user LIKE ? LIMIT ? OFFSET ?',
-                ["%$search%", $limit, $offset]
+                "$base WHERE l.LoginName LIKE ?
+                 ORDER BY l.ID DESC
+                 OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY",
+                ["%$search%"]
             );
         }
         return $this->query(
-            'SELECT * FROM gc_user LIMIT ? OFFSET ?',
-            [$limit, $offset]
+            "$base ORDER BY l.ID DESC
+             OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY"
         );
     }
 
     public function count(string $search = ''): int {
         $row = $search
-            ? $this->queryOne('SELECT COUNT(*) as c FROM gc_user WHERE user LIKE ?', ["%$search%"])
-            : $this->queryOne('SELECT COUNT(*) as c FROM gc_user');
+            ? $this->queryOne('SELECT COUNT(*) AS c FROM LoginTables WHERE LoginName LIKE ?', ["%$search%"])
+            : $this->queryOne('SELECT COUNT(*) AS c FROM LoginTables');
         return (int)($row['c'] ?? 0);
+    }
+
+    public function usernameExists(string $username): bool {
+        $row = $this->queryOne('SELECT ID FROM LoginTables WHERE LoginName = ?', [$username]);
+        return $row !== null;
+    }
+
+    public function create(string $username, string $passHash, string $phone = ''): bool {
+        return $this->execute(
+            'INSERT INTO LoginTables (LoginName, Password, Phone, Status) VALUES (?, ?, ?, 1)',
+            [$username, $passHash, $phone]
+        );
+    }
+
+    public function updateCoins(string $username, int $delta): bool {
+        $exists = $this->queryOne('SELECT ID FROM KTCoins WHERE UserName = ?', [$username]);
+        if ($exists) {
+            return $this->execute(
+                'UPDATE KTCoins SET KCoin = KCoin + ?, UpdateTime = GETDATE() WHERE UserName = ?',
+                [$delta, $username]
+            );
+        }
+        $user   = $this->queryOne('SELECT ID FROM LoginTables WHERE LoginName = ?', [$username]);
+        $userId = (int)($user['ID'] ?? 0);
+        return $this->execute(
+            'INSERT INTO KTCoins (UserID, UserName, KCoin, UpdateTime) VALUES (?, ?, ?, GETDATE())',
+            [$userId, $username, $delta]
+        );
+    }
+
+    public function getKCoin(string $username): int {
+        $row = $this->queryOne('SELECT ISNULL(KCoin, 0) AS KCoin FROM KTCoins WHERE UserName = ?', [$username]);
+        return (int)($row['KCoin'] ?? 0);
+    }
+
+    public function getAgentLogs(string $agentName, int $limit, int $offset, int $days = 0, string $from = '', string $to = ''): array {
+        [$where, $params] = $this->buildAgentLogWhere($agentName, $days, $from, $to);
+        return $this->query(
+            "SELECT * FROM RechageLogs WHERE $where
+             ORDER BY ID DESC
+             OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY",
+            $params
+        );
+    }
+
+    public function countAgentLogs(string $agentName, int $days = 0, string $from = '', string $to = ''): int {
+        [$where, $params] = $this->buildAgentLogWhere($agentName, $days, $from, $to);
+        $row = $this->queryOne("SELECT COUNT(*) AS c FROM RechageLogs WHERE $where", $params);
+        return (int)($row['c'] ?? 0);
+    }
+
+    public function sumAgentLogs(string $agentName, int $days = 0, string $from = '', string $to = ''): int {
+        [$where, $params] = $this->buildAgentLogWhere($agentName, $days, $from, $to);
+        $row = $this->queryOne("SELECT ISNULL(SUM(CoinValue), 0) AS s FROM RechageLogs WHERE $where", $params);
+        return (int)($row['s'] ?? 0);
+    }
+
+    private function buildAgentLogWhere(string $agentName, int $days, string $from, string $to): array {
+        $where  = 'ActionBy = ?';
+        $params = [$agentName];
+        if ($from && $to) {
+            $where   .= ' AND CAST(RechageDate AS DATE) BETWEEN ? AND ?';
+            $params[] = $from;
+            $params[] = $to;
+        } elseif ($days > 0) {
+            $where .= " AND RechageDate >= DATEADD(DAY, -$days, GETDATE())";
+        }
+        return [$where, $params];
+    }
+
+    public function logRecharge(int $userId, string $username, int $amount, int $before, int $after, string $actionBy): bool {
+        return $this->execute(
+            "INSERT INTO RechageLogs (UserID, UserName, CoinValue, BeforeCoin, AfterCoin, RechageType, RechageDate, Status, ActionBy)
+             VALUES (?, ?, ?, ?, ?, N'DAI_LY', GETDATE(), 1, ?)",
+            [$userId, $username, $amount, $before, $after, $actionBy]
+        );
     }
 }

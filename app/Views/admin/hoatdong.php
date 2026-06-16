@@ -20,7 +20,7 @@
                             <th class="text-center" style="width:34px;">T6</th>
                             <th class="text-center" style="width:34px;">T7</th>
                             <th class="text-center" style="width:34px;">CN</th>
-                            <th style="width:90px;">Giờ</th>
+                            <th style="width:110px;">Giờ</th>
                             <th style="width:40px;">STT</th>
                             <th style="width:80px;"></th>
                         </tr>
@@ -31,13 +31,13 @@
                             <td colspan="12" class="text-center text-muted py-4">Chưa có hoạt động nào.</td>
                         </tr>
                         <?php else: ?>
-                        <?php foreach ($list as $item): ?>
+                        <?php foreach ($list as $idx => $item): ?>
                         <tr>
-                            <td class="text-muted"><?= $item['id'] ?></td>
+                            <td class="text-muted"><?= $idx ?></td>
                             <td class="font-weight-bold"><?= htmlspecialchars($item['ten']) ?></td>
                             <?php foreach (['t2','t3','t4','t5','t6','t7','cn'] as $d): ?>
                             <td class="text-center">
-                                <?php if ($item[$d]): ?>
+                                <?php if (!empty($item[$d])): ?>
                                     <i class="fa fa-check text-success"></i>
                                 <?php else: ?>
                                     <span class="text-muted">–</span>
@@ -48,11 +48,11 @@
                             <td class="text-muted"><?= $item['sapxep'] ?></td>
                             <td>
                                 <button class="btn btn-outline-warning btn-sm"
-                                        onclick="editRow(<?= htmlspecialchars(json_encode($item)) ?>)"
+                                        onclick="editRow(<?= $idx ?>, <?= htmlspecialchars(json_encode($item), ENT_QUOTES) ?>)"
                                         title="Sửa">
                                     <i class="fa fa-pencil"></i>
                                 </button>
-                                <a href="/admin/hoatdong/delete/<?= $item['id'] ?>"
+                                <a href="/admin/hoatdong/delete/<?= $idx ?>"
                                    onclick="return confirm('Xóa hoạt động này?')"
                                    class="btn btn-outline-danger btn-sm" title="Xóa">
                                     <i class="fa fa-trash"></i>
@@ -74,7 +74,7 @@
             </div>
             <div class="card-body">
                 <form method="post" action="/admin/hoatdong/save">
-                    <input type="hidden" name="id" id="f-id" value="0">
+                    <input type="hidden" name="id" id="f-id" value="-1">
                     <div class="form-group">
                         <label for="f-ten">Tên hoạt động <span class="text-danger">*</span></label>
                         <input type="text" name="ten" id="f-ten" class="form-control"
@@ -95,7 +95,7 @@
                     <div class="form-group">
                         <label for="f-thoigian">Thời gian</label>
                         <input type="text" name="thoigian" id="f-thoigian" class="form-control"
-                               value="UPDATE" placeholder="VD: 20:00 – 21:00">
+                               placeholder="VD: 20:00 – 21:00">
                     </div>
                     <div class="form-group">
                         <label for="f-sapxep">Thứ tự hiển thị</label>
@@ -116,12 +116,12 @@
 </div>
 
 <script>
-function editRow(item) {
+function editRow(idx, item) {
     document.getElementById('form-title').innerHTML = '<i class="fa fa-pencil text-warning"></i> Sửa hoạt động';
-    document.getElementById('f-id').value      = item.id;
-    document.getElementById('f-ten').value     = item.ten;
+    document.getElementById('f-id').value       = idx;
+    document.getElementById('f-ten').value      = item.ten;
     document.getElementById('f-thoigian').value = item.thoigian;
-    document.getElementById('f-sapxep').value  = item.sapxep;
+    document.getElementById('f-sapxep').value   = item.sapxep;
     ['t2','t3','t4','t5','t6','t7','cn'].forEach(function(d) {
         document.getElementById('f-' + d).checked = (item[d] == 1);
     });
@@ -129,9 +129,9 @@ function editRow(item) {
 }
 function resetForm() {
     document.getElementById('form-title').innerHTML = '<i class="fa fa-plus-circle text-success"></i> Thêm hoạt động';
-    document.getElementById('f-id').value       = 0;
+    document.getElementById('f-id').value       = -1;
     document.getElementById('f-ten').value      = '';
-    document.getElementById('f-thoigian').value = 'UPDATE';
+    document.getElementById('f-thoigian').value = '';
     document.getElementById('f-sapxep').value   = 0;
     document.querySelectorAll('.day-check').forEach(function(c) { c.checked = false; });
 }

@@ -11,15 +11,18 @@ class GameAdminController extends Controller {
     public function loginAjax(): void {
         $username = trim($_POST['username'] ?? '');
         $password = trim($_POST['password'] ?? '');
-        $db = db_portal();
-        $row = $db->prepare('SELECT * FROM gc_admin WHERE username = ? LIMIT 1');
-        $row->execute([$username]);
-        $admin = $row->fetch();
-        if (!$admin || $admin['password'] !== md5($password)) {
+        $db       = db_portal();
+
+        $stmt = $db->prepare('SELECT * FROM CsmLogins WHERE LoginName = ?');
+        $stmt->execute([$username]);
+        $admin = $stmt->fetch();
+
+        if (!$admin || $admin['Password'] !== $password) {
             $this->json(['code' => 1, 'msg' => 'Sai tên đăng nhập hoặc mật khẩu']);
         }
-        $_SESSION['useradmin'] = $admin['username'];
-        $_SESSION['admin'] = '2205';
+
+        $_SESSION['useradmin'] = $admin['LoginName'];
+        $_SESSION['admin']     = '2205';
         $this->json(['code' => 0, 'msg' => '/game-admin']);
     }
 
@@ -30,13 +33,13 @@ class GameAdminController extends Controller {
 
     public function index(): void {
         $this->authGameAdmin();
-        $db = db_portal();
-        $totalUsers   = $db->query('SELECT COUNT(*) FROM gc_user')->fetchColumn();
-        $totalServers = $db->query('SELECT COUNT(*) FROM gc_server')->fetchColumn();
-        $revenue      = (new Payment($db))->getRevenue();
+        $db          = db_portal();
+        $totalUsers  = $db->query('SELECT COUNT(*) AS c FROM LoginTables')->fetch()['c'] ?? 0;
+        $totalServer = $db->query('SELECT COUNT(*) AS c FROM ServerLists')->fetch()['c'] ?? 0;
+        $revenue     = (new Payment($db))->getRevenue();
         $this->view('layouts/game-admin', [
             'totalUsers'   => $totalUsers,
-            'totalServers' => $totalServers,
+            'totalServers' => $totalServer,
             'revenue'      => $revenue,
             'content_view' => 'game-admin/dashboard',
         ]);
@@ -44,15 +47,16 @@ class GameAdminController extends Controller {
 
     public function users(): void {
         $this->authGameAdmin();
-        $db = db_portal();
         $page   = max(1, (int)($_GET['p'] ?? 1));
         $limit  = (int)($_GET['limit'] ?? 10);
         $search = $_GET['search'] ?? '';
         $offset = ($page - 1) * $limit;
-        $userModel = new User($db);
-        $users = $userModel->getAll($limit, $offset, $search);
-        $total = $userModel->count($search);
-        $this->json(['users' => $users, 'total' => $total]);
+
+        $userModel = new User(db_portal());
+        $this->json([
+            'users' => $userModel->getAll($limit, $offset, $search),
+            'total' => $userModel->count($search),
+        ]);
     }
 
     public function addPoints(): void {
@@ -60,7 +64,7 @@ class GameAdminController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user   = trim($_POST['user'] ?? '');
             $amount = (int)($_POST['diem'] ?? 0);
-            if ($user && $amount) {
+            if ($user && $amount > 0) {
                 (new Payment(db_portal()))->addPoints($user, $amount, $_SESSION['useradmin']);
                 $this->view('layouts/game-admin', [
                     'success'      => true,
@@ -80,9 +84,7 @@ class GameAdminController extends Controller {
         $user    = trim($_POST['user'] ?? '');
         $newPass = strtoupper(md5($_POST['newpass'] ?? ''));
         if ($user && $_POST['newpass']) {
-            $db = db_portal();
-            (new User($db))->updatePassword($user, $newPass);
-            (new User($db))->updatePortalPassword($user, $newPass);
+            (new User(db_portal()))->updatePassword($user, $newPass);
             $this->json(['status' => true, 'msg' => 'Đặt lại mật khẩu thành công']);
         }
         $this->json(['status' => false, 'msg' => 'Thiếu thông tin']);
@@ -90,8 +92,7 @@ class GameAdminController extends Controller {
 
     public function servers(): void {
         $this->authGameAdmin();
-        $db = db_portal();
-        $servers = $db->query('SELECT * FROM gc_server')->fetchAll();
+        $servers = db_portal()->query('SELECT * FROM ServerLists ORDER BY nServerOrder ASC')->fetchAll();
         $this->view('layouts/game-admin', [
             'servers'      => $servers,
             'content_view' => 'game-admin/servers',
@@ -100,14 +101,12 @@ class GameAdminController extends Controller {
 
     public function paymentLogs(): void {
         $this->authGameAdmin();
-        $db = db_portal();
-        $page  = max(1, (int)($_GET['p'] ?? 1));
-        $limit = 20;
+        $page   = max(1, (int)($_GET['p'] ?? 1));
+        $limit  = 20;
         $offset = ($page - 1) * $limit;
-        $logs = $db->prepare('SELECT * FROM gc_log ORDER BY id DESC LIMIT ? OFFSET ?');
-        $logs->execute([$limit, $offset]);
+        $logs   = (new Payment(db_portal()))->getAllLogs($limit, $offset);
         $this->view('layouts/game-admin', [
-            'logs'         => $logs->fetchAll(),
+            'logs'         => $logs,
             'page'         => $page,
             'content_view' => 'game-admin/payment-logs',
         ]);

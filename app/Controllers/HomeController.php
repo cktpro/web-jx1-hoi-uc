@@ -2,24 +2,19 @@
 
 class HomeController extends Controller {
     public function index(): void {
-        $db = db_blog();
-        $post = new Post($db);
-        $config = (new SiteConfig(db_portal()))->getBlog($db);
+        $db     = db_portal();
+        $post   = new Post($db);
+        $config = siteconfig_load();
 
-        $slidesStmt = $db->query('SELECT * FROM blog_slide LIMIT 1');
-        $slides = $slidesStmt->fetch() ?: [];
-        $slidesBottomStmt = $db->query('SELECT * FROM blog_slide_duoi LIMIT 1');
-        $slidesBottom = $slidesBottomStmt->fetch() ?: [];
-
-        $news     = $post->getByCategory(5, 20);
-        $events   = $post->getByCategory(4, 20);
-        $guides   = $post->getByCategory(1, 20);
-        $features = $post->getByCategory(2, 20);
+        $news     = $post->getByCategory('tin-tuc', 20);
+        $events   = $post->getByCategory('su-kien', 20);
+        $guides   = $post->getByCategory('cam-nang', 20);
+        $features = $post->getByCategory('tinh-nang', 20);
 
         $this->view('layouts/main', [
             'config'       => $config,
-            'slides'       => $slides,
-            'slidesBottom' => $slidesBottom,
+            'slides'       => [],
+            'slidesBottom' => [],
             'news'         => $news,
             'events'       => $events,
             'guides'       => $guides,
@@ -28,11 +23,18 @@ class HomeController extends Controller {
         ]);
     }
 
+    public function trackDownload(): void {
+        $cfg = siteconfig_load();
+        $cfg['download_count'] = (int)($cfg['download_count'] ?? 0) + 1;
+        siteconfig_save($cfg);
+        $this->json(['ok' => true]);
+    }
+
     public function search(): void {
         $keyword = trim($_GET['keyword'] ?? '');
-        $db = db_blog();
+        $db      = db_portal();
         $results = $keyword ? (new Post($db))->search($keyword) : [];
-        $config = (new SiteConfig(db_portal()))->getBlog($db);
+        $config  = siteconfig_load();
         $this->view('layouts/main', [
             'config'       => $config,
             'keyword'      => $keyword,

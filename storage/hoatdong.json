@@ -1,0 +1,5 @@
+[
+    {"ten": "Tu luyện Đoạt Bảo", "thoigian": "12:00 - 14:00", "t2":1,"t3":1,"t4":1,"t5":1,"t6":1,"t7":1,"cn":1, "sapxep":1},
+    {"ten": "Chiến trường PK", "thoigian": "20:00 - 22:00", "t2":1,"t3":1,"t4":1,"t5":1,"t6":1,"t7":1,"cn":1, "sapxep":2},
+    {"ten": "Công Thành Chiến", "thoigian": "21:00 - 22:00", "t2":0,"t3":0,"t4":0,"t5":0,"t6":0,"t7":1,"cn":1, "sapxep":3}
+]

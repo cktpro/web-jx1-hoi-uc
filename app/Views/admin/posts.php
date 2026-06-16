@@ -23,19 +23,19 @@
                 <?php else: ?>
                 <?php foreach ($posts as $post): ?>
                 <tr>
-                    <td class="text-muted"><?= $post['postID'] ?></td>
+                    <td class="text-muted"><?= $post['ID'] ?></td>
                     <td>
-                        <a href="/<?= htmlspecialchars($post['postSlug']) ?>.html" target="_blank">
-                            <?= htmlspecialchars($post['postTitle']) ?>
+                        <a href="<?= post_url($post) ?>" target="_blank">
+                            <?= htmlspecialchars($post['Title']) ?>
                         </a>
                     </td>
-                    <td class="text-muted"><?= date('d/m/Y', strtotime($post['postDate'])) ?></td>
+                    <td class="text-muted"><?= date('d/m/Y', strtotime($post['DateTime'])) ?></td>
                     <td class="text-nowrap">
-                        <a href="/admin/posts/edit/<?= $post['postID'] ?>"
+                        <a href="/admin/posts/edit/<?= $post['ID'] ?>"
                            class="btn btn-outline-warning btn-sm" title="Sửa">
                             <i class="fa fa-pencil"></i>
                         </a>
-                        <a href="/admin/posts/delete/<?= $post['postID'] ?>"
+                        <a href="/admin/posts/delete/<?= $post['ID'] ?>"
                            onclick="return confirm('Xóa bài viết này?')"
                            class="btn btn-outline-danger btn-sm" title="Xóa">
                             <i class="fa fa-trash"></i>

@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta name="keywords" content="<?= htmlspecialchars($config['keywords'] ?? '') ?>">
-    <meta name="description" content="<?= htmlspecialchars($post['postDesc'] ?? $config['descr'] ?? '') ?>">
-    <meta property="og:title" content="<?= htmlspecialchars($post['postTitle'] ?? $config['title'] ?? '') ?>">
-    <meta property="og:description" content="<?= htmlspecialchars($post['postDesc'] ?? $config['descr'] ?? '') ?>">
-    <meta property="og:image" content="<?= htmlspecialchars($post['postImage'] ?? $config['og_image'] ?? '') ?>">
+    <meta name="description" content="<?= htmlspecialchars(mb_substr(strip_tags($post['Context'] ?? ''), 0, 160) ?: ($config['descr'] ?? '')) ?>">
+    <meta property="og:title" content="<?= htmlspecialchars($post['Title'] ?? $config['title'] ?? '') ?>">
+    <meta property="og:description" content="<?= htmlspecialchars(mb_substr(strip_tags($post['Context'] ?? ''), 0, 160) ?: ($config['descr'] ?? '')) ?>">
+    <meta property="og:image" content="<?= htmlspecialchars($config['og_image'] ?? '') ?>">
     <link rel="shortcut icon" href="/assets/imgs/favicon.ico">
-    <title><?= htmlspecialchars($post['postTitle'] ?? '') ?> - <?= htmlspecialchars($config['title'] ?? APP_NAME) ?></title>
+    <title><?= htmlspecialchars($post['Title'] ?? '') ?> - <?= htmlspecialchars($config['title'] ?? APP_NAME) ?></title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/jquery.mCustomScrollbar.min.css">
     <link rel="stylesheet" href="/assets/css/swiper-bundle.min.css">

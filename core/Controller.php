@@ -34,6 +34,12 @@ class Controller {
         }
     }
 
+    protected function authAgent(): void {
+        if (empty($_SESSION['agent'])) {
+            $this->redirect('/dai-ly/login');
+        }
+    }
+
     protected function authGameAdmin(): void {
         if (empty($_SESSION['useradmin']) || ($_SESSION['admin'] ?? '') !== '2205') {
             $this->redirect('/game-admin/login');

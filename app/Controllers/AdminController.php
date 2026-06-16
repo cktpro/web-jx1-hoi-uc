@@ -11,14 +11,17 @@ class AdminController extends Controller {
     public function loginAjax(): void {
         $username = trim($_POST['username'] ?? '');
         $password = trim($_POST['password'] ?? '');
-        $db = db_blog();
-        $user = $db->prepare('SELECT * FROM blog_users WHERE userLogin = ? LIMIT 1');
-        $user->execute([$username]);
-        $row = $user->fetch();
-        if (!$row || !password_verify($password, $row['userPass'])) {
+        $db       = db_portal();
+
+        $stmt = $db->prepare('SELECT * FROM CsmLogins WHERE LoginName = ?');
+        $stmt->execute([$username]);
+        $row = $stmt->fetch();
+
+        if (!$row || $row['Password'] !== $password) {
             $this->json(['code' => 1, 'msg' => 'Sai tên đăng nhập hoặc mật khẩu']);
         }
-        $_SESSION['blog_admin'] = $row['userLogin'];
+
+        $_SESSION['blog_admin'] = $row['LoginName'];
         $this->json(['code' => 0, 'msg' => '/admin']);
     }
 
@@ -29,25 +32,21 @@ class AdminController extends Controller {
 
     public function index(): void {
         $this->authAdmin();
-        $db = db_blog();
-        $totalPosts      = $db->query('SELECT COUNT(*) FROM blog_posts_seo')->fetchColumn();
-        $totalCats       = $db->query('SELECT COUNT(*) FROM blog_cats')->fetchColumn();
-        $totalActivities = $db->query('SELECT COUNT(*) FROM blog_hoatdong')->fetchColumn();
+        $db         = db_portal();
+        $totalPosts = $db->query('SELECT COUNT(*) AS c FROM NewsTables')->fetch()['c'] ?? 0;
         $this->view('layouts/admin', [
             'totalPosts'      => $totalPosts,
-            'totalCats'       => $totalCats,
-            'totalActivities' => $totalActivities,
+            'totalCats'       => 0,
+            'totalActivities' => 0,
             'content_view'    => 'admin/dashboard',
         ]);
     }
 
     public function posts(): void {
         $this->authAdmin();
-        $db = db_blog();
-        $page = max(1, (int)($_GET['p'] ?? 1));
+        $page  = max(1, (int)($_GET['p'] ?? 1));
         $limit = 20;
-        $offset = ($page - 1) * $limit;
-        $posts = (new Post($db))->getRecent($limit, $offset);
+        $posts = (new Post(db_portal()))->getRecent($limit, ($page - 1) * $limit);
         $this->view('layouts/admin', [
             'posts'        => $posts,
             'page'         => $page,
@@ -57,203 +56,167 @@ class AdminController extends Controller {
 
     public function addPostForm(): void {
         $this->authAdmin();
-        $db = db_blog();
-        $cats = $db->query('SELECT * FROM blog_cats')->fetchAll();
-        $this->view('layouts/admin', [
-            'cats'         => $cats,
-            'content_view' => 'admin/add-post',
-        ]);
+        $this->view('layouts/admin', ['content_view' => 'admin/add-post']);
     }
 
     public function addPost(): void {
         $this->authAdmin();
-        $db = db_blog();
-        $slug = url_slug($_POST['postTitle'] ?? '');
-        (new Post($db))->create([
-            'title'   => $_POST['postTitle'] ?? '',
-            'slug'    => $slug,
-            'content' => $_POST['postCont'] ?? '',
-            'desc'    => $_POST['postDesc'] ?? '',
-            'image'   => $_POST['postImage'] ?? '',
-            'tags'    => $_POST['postTags'] ?? '',
+        (new Post(db_portal()))->create([
+            'category' => trim($_POST['postCategory'] ?? ''),
+            'title'    => trim($_POST['postTitle'] ?? ''),
+            'content'  => $_POST['postCont'] ?? '',
         ]);
-        $postId = $db->lastInsertId();
-        if (!empty($_POST['cats'])) {
-            foreach ((array)$_POST['cats'] as $catId) {
-                $db->prepare('INSERT INTO blog_post_cats (postID, catID) VALUES (?, ?)')->execute([$postId, $catId]);
-            }
-        }
         $this->redirect('/admin/posts');
     }
 
     public function editPostForm(int $id): void {
         $this->authAdmin();
-        $db   = db_blog();
-        $post = (new Post($db))->findById($id);
-        if (!$post) { $this->redirect('/admin/posts'); }
-        $cats        = $db->query('SELECT * FROM blog_cats')->fetchAll();
-        $postCatIds  = array_column(
-            $db->prepare('SELECT catID FROM blog_post_cats WHERE postID=?')->execute([$id]) ? [] : [],
-            'catID'
-        );
-        $stmt = $db->prepare('SELECT catID FROM blog_post_cats WHERE postID=?');
-        $stmt->execute([$id]);
-        $postCatIds = array_column($stmt->fetchAll(), 'catID');
+        $post = (new Post(db_portal()))->findById($id);
+        if (!$post) {
+            $this->redirect('/admin/posts');
+        }
         $this->view('layouts/admin', [
-            'post'       => $post,
-            'cats'       => $cats,
-            'postCatIds' => $postCatIds,
+            'post'         => $post,
             'content_view' => 'admin/edit-post',
         ]);
     }
 
     public function editPost(int $id): void {
         $this->authAdmin();
-        $db   = db_blog();
-        $slug = url_slug($_POST['postTitle'] ?? '');
-        (new Post($db))->update($id, [
-            'title'   => $_POST['postTitle'] ?? '',
-            'slug'    => $slug,
-            'content' => $_POST['postCont'] ?? '',
-            'desc'    => $_POST['postDesc'] ?? '',
-            'image'   => $_POST['postImage'] ?? '',
-            'tags'    => $_POST['postTags'] ?? '',
+        (new Post(db_portal()))->update($id, [
+            'category' => trim($_POST['postCategory'] ?? ''),
+            'title'    => trim($_POST['postTitle'] ?? ''),
+            'content'  => $_POST['postCont'] ?? '',
+            'slug'     => trim($_POST['postSlug'] ?? ''),
         ]);
-        $db->prepare('DELETE FROM blog_post_cats WHERE postID=?')->execute([$id]);
-        if (!empty($_POST['cats'])) {
-            foreach ((array)$_POST['cats'] as $catId) {
-                $db->prepare('INSERT INTO blog_post_cats (postID, catID) VALUES (?, ?)')->execute([$id, $catId]);
-            }
-        }
         $this->redirect('/admin/posts');
+    }
+
+    public function editPostAjax(int $id): void {
+        $this->authAdmin();
+        $title    = trim($_POST['postTitle'] ?? '');
+        $category = trim($_POST['postCategory'] ?? '');
+        $content  = $_POST['postCont'] ?? '';
+        $slug     = trim($_POST['postSlug'] ?? '');
+
+        if (!$title) {
+            $this->json(['status' => false, 'msg' => 'Tiêu đề không được để trống']);
+        }
+
+        (new Post(db_portal()))->update($id, [
+            'category' => $category,
+            'title'    => $title,
+            'content'  => $content,
+            'slug'     => $slug,
+        ]);
+
+        $this->json(['status' => true, 'msg' => 'Đã lưu thành công']);
     }
 
     public function deletePost(int $id): void {
         $this->authAdmin();
-        (new Post(db_blog()))->delete($id);
+        (new Post(db_portal()))->delete($id);
         $this->redirect('/admin/posts');
     }
 
+    public function config(): void {
+        $this->authAdmin();
+        $this->view('layouts/admin', [
+            'cfg'          => siteconfig_load(),
+            'content_view' => 'admin/config',
+        ]);
+    }
+
+    public function configSaveAjax(): void {
+        $this->authAdmin();
+        $current = siteconfig_load();
+        $fields  = ['taigame', 'taigameios', 'link_dangky', 'link_hotro'];
+        foreach ($fields as $f) {
+            if (isset($_POST[$f])) {
+                $current[$f] = trim($_POST[$f]);
+            }
+        }
+        siteconfig_save($current);
+        $this->json(['status' => true, 'msg' => 'Đã lưu cấu hình']);
+    }
+
+    // Slide, SEO, hoạt động — chưa có bảng tương ứng trong SQL Server schema
     public function slide(): void {
         $this->authAdmin();
-        $db    = db_blog();
-        $slide = $db->query('SELECT * FROM blog_slide LIMIT 1')->fetch() ?: [];
-        $duoi  = $db->query('SELECT * FROM blog_slide_duoi LIMIT 1')->fetch() ?: [];
         $this->view('layouts/admin', [
-            'slide'        => $slide,
-            'duoi'         => $duoi,
+            'slide'        => [],
+            'duoi'         => [],
             'content_view' => 'admin/slide',
         ]);
     }
 
     public function slideSave(): void {
         $this->authAdmin();
-        $db = db_blog();
-
-        // Slide PC
-        $slideData = [];
-        for ($i = 1; $i <= 4; $i++) {
-            $slideData["slide_img$i"]  = trim($_POST["slide_img$i"]  ?? '');
-            $slideData["slide_link$i"] = trim($_POST["slide_link$i"] ?? '');
-        }
-        $slideCount = $db->query('SELECT COUNT(*) FROM blog_slide')->fetchColumn();
-        if ($slideCount > 0) {
-            $sets = implode(', ', array_map(fn($k) => "$k=?", array_keys($slideData)));
-            $db->prepare("UPDATE blog_slide SET $sets LIMIT 1")->execute(array_values($slideData));
-        } else {
-            $cols = implode(', ', array_keys($slideData));
-            $phs  = implode(', ', array_fill(0, count($slideData), '?'));
-            $db->prepare("INSERT INTO blog_slide ($cols) VALUES ($phs)")->execute(array_values($slideData));
-        }
-
-        // Slide mobile
-        $duoiData = [];
-        for ($i = 0; $i <= 4; $i++) {
-            $key = $i === 0 ? 'slide_duoi_img' : "slide_duoi_img$i";
-            $duoiData[$key] = trim($_POST[$key] ?? '');
-        }
-        $duoiCount = $db->query('SELECT COUNT(*) FROM blog_slide_duoi')->fetchColumn();
-        if ($duoiCount > 0) {
-            $sets = implode(', ', array_map(fn($k) => "$k=?", array_keys($duoiData)));
-            $db->prepare("UPDATE blog_slide_duoi SET $sets LIMIT 1")->execute(array_values($duoiData));
-        } else {
-            $cols = implode(', ', array_keys($duoiData));
-            $phs  = implode(', ', array_fill(0, count($duoiData), '?'));
-            $db->prepare("INSERT INTO blog_slide_duoi ($cols) VALUES ($phs)")->execute(array_values($duoiData));
-        }
-
         $this->redirect('/admin/slide?saved=1');
     }
 
     public function seo(): void {
         $this->authAdmin();
-        $db  = db_blog();
-        $cfg = $db->query('SELECT * FROM blog_cauhinh LIMIT 1')->fetch();
         $this->view('layouts/admin', [
-            'cfg'          => $cfg,
+            'cfg'          => siteconfig_load(),
             'content_view' => 'admin/seo',
         ]);
     }
 
-    public function seoSave(): void {
+    public function seoSaveAjax(): void {
         $this->authAdmin();
-        $db = db_blog();
-        $fields = ['title','descr','keywords','og_image','taigame','taigameios',
-                   'link_dangky','link_napthe','link_hotro','link_congdong',
-                   'link_huongdan','link_huongdan_nap','link_datquyenvip',
-                   'link_auto','phone','tips'];
-        $sets  = implode(', ', array_map(fn($f) => "$f = ?", $fields));
-        $vals  = array_map(fn($f) => trim($_POST[$f] ?? ''), $fields);
-        $count = $db->query('SELECT COUNT(*) FROM blog_cauhinh')->fetchColumn();
-        if ($count > 0) {
-            $db->prepare("UPDATE blog_cauhinh SET $sets LIMIT 1")->execute($vals);
-        } else {
-            $cols = implode(', ', $fields);
-            $phs  = implode(', ', array_fill(0, count($fields), '?'));
-            $db->prepare("INSERT INTO blog_cauhinh ($cols) VALUES ($phs)")->execute($vals);
+        $current = siteconfig_load();
+        $fields  = ['title','descr','keywords','og_image','phone','tips',
+                    'taigame','taigameios','link_dangky','link_napthe','link_hotro',
+                    'link_congdong','link_huongdan','link_huongdan_nap','link_datquyenvip','link_auto',
+                    'bank_name','bank_number','bank_owner','bank_content','momo_number','momo_owner','keyapi',
+                    'download_count'];
+        foreach ($fields as $f) {
+            if (array_key_exists($f, $_POST)) {
+                $current[$f] = trim($_POST[$f]);
+            }
         }
-        $this->redirect('/admin/seo?saved=1');
+        siteconfig_save($current);
+        $this->json(['status' => true, 'msg' => 'Đã lưu cài đặt SEO']);
     }
 
     public function hoatdong(): void {
         $this->authAdmin();
-        $db = db_blog();
-        $list = $db->query('SELECT * FROM blog_hoatdong ORDER BY sapxep ASC')->fetchAll();
         $this->view('layouts/admin', [
-            'list'         => $list,
+            'list'         => hoatdong_load(),
             'content_view' => 'admin/hoatdong',
         ]);
     }
 
     public function hoatdongSave(): void {
         $this->authAdmin();
-        $db = db_blog();
-        $id = (int)($_POST['id'] ?? 0);
-        $data = [
-            $_POST['ten'] ?? '',
-            isset($_POST['t2']) ? 1 : 0,
-            isset($_POST['t3']) ? 1 : 0,
-            isset($_POST['t4']) ? 1 : 0,
-            isset($_POST['t5']) ? 1 : 0,
-            isset($_POST['t6']) ? 1 : 0,
-            isset($_POST['t7']) ? 1 : 0,
-            isset($_POST['cn']) ? 1 : 0,
-            $_POST['thoigian'] ?? 'UPDATE',
-            (int)($_POST['sapxep'] ?? 0),
+        $id   = (int)($_POST['id'] ?? -1);
+        $days = ['t2','t3','t4','t5','t6','t7','cn'];
+        $item = [
+            'ten'     => trim($_POST['ten'] ?? ''),
+            'thoigian'=> trim($_POST['thoigian'] ?? ''),
+            'sapxep'  => (int)($_POST['sapxep'] ?? 0),
         ];
-        if ($id > 0) {
-            $db->prepare('UPDATE blog_hoatdong SET ten=?,t2=?,t3=?,t4=?,t5=?,t6=?,t7=?,cn=?,thoigian=?,sapxep=? WHERE id=?')
-               ->execute([...$data, $id]);
-        } else {
-            $db->prepare('INSERT INTO blog_hoatdong (ten,t2,t3,t4,t5,t6,t7,cn,thoigian,sapxep) VALUES (?,?,?,?,?,?,?,?,?,?)')
-               ->execute($data);
+        foreach ($days as $d) {
+            $item[$d] = isset($_POST[$d]) ? 1 : 0;
         }
+
+        $list = hoatdong_load();
+        if ($id >= 0 && array_key_exists($id, $list)) {
+            $list[$id] = $item;
+        } else {
+            $list[] = $item;
+        }
+        usort($list, fn($a, $b) => $a['sapxep'] <=> $b['sapxep']);
+        hoatdong_save($list);
         $this->redirect('/admin/hoatdong');
     }
 
     public function hoatdongDelete(int $id): void {
         $this->authAdmin();
-        db_blog()->prepare('DELETE FROM blog_hoatdong WHERE id=?')->execute([$id]);
+        $list = hoatdong_load();
+        array_splice($list, $id, 1);
+        hoatdong_save($list);
         $this->redirect('/admin/hoatdong');
     }
 }
