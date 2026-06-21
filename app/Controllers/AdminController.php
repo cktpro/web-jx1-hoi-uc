@@ -200,6 +200,27 @@ class AdminController extends Controller {
         $this->json(['status' => true, 'msg' => 'Đã lưu cài đặt SEO']);
     }
 
+    public function faviconUploadAjax(): void {
+        $this->authAdmin();
+        if (empty($_FILES['favicon']) || $_FILES['favicon']['error'] !== UPLOAD_ERR_OK) {
+            $this->json(['status' => false, 'msg' => 'Không nhận được file']);
+        }
+        $file = $_FILES['favicon'];
+        $allowed = ['image/x-icon', 'image/vnd.microsoft.icon', 'image/png', 'image/jpeg'];
+        $mime    = mime_content_type($file['tmp_name']);
+        if (!in_array($mime, $allowed)) {
+            $this->json(['status' => false, 'msg' => 'Chỉ chấp nhận file .ico hoặc .png']);
+        }
+        if ($file['size'] > 512 * 1024) {
+            $this->json(['status' => false, 'msg' => 'File không được vượt quá 512KB']);
+        }
+        $dest = APP_PATH . '/public/favicon.ico';
+        if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            $this->json(['status' => false, 'msg' => 'Lưu file thất bại, kiểm tra quyền ghi thư mục']);
+        }
+        $this->json(['status' => true, 'msg' => 'Đã cập nhật favicon']);
+    }
+
     public function hoatdong(): void {
         $this->authAdmin();
         $this->view('layouts/admin', [

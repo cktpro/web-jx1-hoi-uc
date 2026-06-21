@@ -138,7 +138,62 @@
     </div>
 </div>
 
+<div class="card mt-3">
+    <div class="card-header">
+        <span><i class="fa fa-image text-warning"></i> Favicon</span>
+    </div>
+    <div class="card-body">
+        <div class="d-flex align-items-center mb-3">
+            <img src="/favicon.ico?v=<?= time() ?>" id="favicon-preview"
+                 style="width:32px;height:32px;margin-right:12px;border:1px solid #dee2e6;border-radius:4px;"
+                 alt="favicon" onerror="this.style.display='none'">
+            <span class="text-muted" style="font-size:13px;">Favicon hiện tại (32×32)</span>
+        </div>
+        <div class="d-flex align-items-center">
+            <input type="file" id="favicon-file" accept=".ico,.png,.jpg,.jpeg"
+                   class="form-control-file mr-3" style="font-size:13px;">
+            <button type="button" class="btn btn-warning btn-sm" onclick="uploadFavicon()">
+                <i class="fa fa-upload"></i> Upload
+            </button>
+            <span id="favicon-msg" class="ml-3" style="font-size:13px;"></span>
+        </div>
+        <small class="text-muted mt-1 d-block">Chấp nhận: .ico, .png — tối đa 512KB</small>
+    </div>
+</div>
+
 <script>
+function uploadFavicon() {
+    var file = $('#favicon-file')[0].files[0];
+    if (!file) { alert('Chưa chọn file'); return; }
+    var fd = new FormData();
+    fd.append('favicon', file);
+    var $btn = $('button[onclick="uploadFavicon()"]');
+    var $msg = $('#favicon-msg');
+    $btn.prop('disabled', true);
+    $msg.removeClass('text-success text-danger').html('<i class="fa fa-spinner fa-spin"></i> Đang upload...');
+    $.ajax({
+        url: '/admin/ajax/favicon/upload',
+        method: 'POST',
+        data: fd,
+        processData: false,
+        contentType: false,
+        success: function(r) {
+            if (r.status) {
+                $msg.addClass('text-success').html('<i class="fa fa-check"></i> ' + r.msg);
+                $('#favicon-preview').attr('src', '/favicon.ico?v=' + Date.now()).show();
+            } else {
+                $msg.addClass('text-danger').html('<i class="fa fa-times"></i> ' + r.msg);
+            }
+            $btn.prop('disabled', false);
+            setTimeout(() => $msg.html(''), 4000);
+        },
+        error: function() {
+            $msg.addClass('text-danger').html('<i class="fa fa-times"></i> Lỗi kết nối');
+            $btn.prop('disabled', false);
+        }
+    });
+}
+
 function saveSeo() {
     var $btn = $('button[onclick="saveSeo()"]');
     var $msg = $('#save-msg');

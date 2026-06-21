@@ -101,6 +101,7 @@ $router->get('/admin/config', [AdminController::class, 'config']);
 $router->post('/admin/ajax/config/save', [AdminController::class, 'configSaveAjax']);
 $router->get('/admin/seo', [AdminController::class, 'seo']);
 $router->post('/admin/ajax/seo/save', [AdminController::class, 'seoSaveAjax']);
+$router->post('/admin/ajax/favicon/upload', [AdminController::class, 'faviconUploadAjax']);
 $router->get('/admin/slide', [AdminController::class, 'slide']);
 $router->post('/admin/slide', [AdminController::class, 'slideSave']);
 $router->get('/admin/hoatdong', [AdminController::class, 'hoatdong']);
