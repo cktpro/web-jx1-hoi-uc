@@ -1,1 +1,4 @@
 .env
+public/web.config
+storage/siteconfig.json
+.claude/
