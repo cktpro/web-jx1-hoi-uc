@@ -85,6 +85,7 @@ class AdminController extends Controller {
             'category' => trim($_POST['postCategory'] ?? ''),
             'title'    => trim($_POST['postTitle'] ?? ''),
             'content'  => $_POST['postCont'] ?? '',
+            'slug'     => trim($_POST['postSlug'] ?? ''),
         ]);
         $this->redirect('/admin/posts');
     }
