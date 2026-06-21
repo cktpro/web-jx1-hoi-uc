@@ -16,13 +16,13 @@ class AuthController extends Controller {
             $this->json(['status' => false, 'msg' => 'Vui lòng nhập đầy đủ thông tin']);
         }
 
-        // $passHash = strtoupper(md5($password));
+        $passHash = strtoupper(md5($password));
         $account  = (new User(db_portal()))->findByUsername($username);
 
         if (!$account) {
             $this->json(['status' => false, 'msg' => 'Tài khoản không tồn tại']);
         }
-        if ($account['Password'] !== $password) {
+        if ($account['Password'] !== $passHash) {
             $this->json(['status' => false, 'msg' => 'Mật khẩu không chính xác']);
         }
 

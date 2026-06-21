@@ -276,6 +276,11 @@ header {
 
 .left__container-item {
     margin-bottom: 7px;
+    margin-left: 10px;
+}
+
+.left__container-item.download__container {
+    margin-left: -13px;
 }
 
 .download__container {
@@ -380,7 +385,6 @@ header {
     background: url('../imgs/daily-timeline.png') top center no-repeat;
     width: 231px;
     height: 391px;
-    margin-left: 19px;
 }
 
 .tabdaily {
@@ -1118,7 +1122,7 @@ ul.list li:last-child {
     position: fixed;
     top: 486px;
     right: 170px;
-    display: block;
+    display: none;
     background: url(../imgs/bg-menu-right.png) no-repeat;
     overflow: hidden;
     width: 156px;
