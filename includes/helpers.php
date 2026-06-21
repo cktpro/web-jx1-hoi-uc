@@ -36,6 +36,19 @@ function siteconfig_save(array $data): void {
     );
 }
 
+function featured_load(): array {
+    $file = APP_PATH . '/storage/featured.json';
+    if (!file_exists($file)) return [];
+    return json_decode(file_get_contents($file), true) ?? [];
+}
+
+function featured_save(array $ids): void {
+    file_put_contents(
+        APP_PATH . '/storage/featured.json',
+        json_encode(array_values($ids), JSON_PRETTY_PRINT)
+    );
+}
+
 function hoatdong_load(): array {
     $file = APP_PATH . '/storage/hoatdong.json';
     if (!file_exists($file)) return [];

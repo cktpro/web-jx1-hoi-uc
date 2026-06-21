@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card stat-card">
             <div class="card-body d-flex align-items-center">
                 <div class="stat-icon bg-success mr-3"><i class="fa fa-newspaper-o"></i></div>
@@ -10,24 +10,35 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card stat-card">
-            <div class="card-body d-flex align-items-center">
-                <div class="stat-icon bg-primary mr-3"><i class="fa fa-list-ul"></i></div>
-                <div>
-                    <div class="stat-value"><?= number_format($totalCats) ?></div>
-                    <div class="stat-label">Danh mục</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card stat-card">
             <div class="card-body d-flex align-items-center">
                 <div class="stat-icon bg-warning mr-3"><i class="fa fa-calendar-check-o"></i></div>
                 <div>
                     <div class="stat-value"><?= number_format($totalActivities ?? 0) ?></div>
                     <div class="stat-label">Hoạt động ngày</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body d-flex align-items-center">
+                <div class="stat-icon bg-primary mr-3"><i class="fa fa-users"></i></div>
+                <div>
+                    <div class="stat-value"><?= number_format($totalUsers ?? 0) ?></div>
+                    <div class="stat-label">Tổng user đăng ký</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body d-flex align-items-center">
+                <div class="stat-icon bg-danger mr-3"><i class="fa fa-download"></i></div>
+                <div>
+                    <div class="stat-value"><?= number_format($downloadCount ?? 0) ?></div>
+                    <div class="stat-label">Lượt tải game</div>
                 </div>
             </div>
         </div>

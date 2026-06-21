@@ -69,7 +69,7 @@
         <div class="left__container-item user__container">
             <div class="user__btn-list">
                 <a href="<?= htmlspecialchars($config['link_dangky'] ?? '#') ?>" target="_blank" class="user__btn-signup"></a>
-                <a href="/user/payment/bank" target="_blank" class="user__btn-payment"></a>
+                <a href="<?= htmlspecialchars($config['link_napthe'] ?? '/user/payment/bank') ?>" target="_blank" class="user__btn-payment"></a>
             </div>
             <div class="user__btn-alone">
                 <a href="<?= htmlspecialchars($config['link_dangky'] ?? '#') ?>" target="_blank" class="user__btn-info"></a>
@@ -93,13 +93,13 @@
 <div class="center__container-item post__container">
     <div class="post__content">
         <div class="post__tabs">
-            <div class="post__button post__active" data-target="#news-tab-1" data-slug="c-tin-tuc">
+            <div class="post__button post__active" data-target="#news-tab-1" data-slug="tin-tuc">
                 <i class="uil uil-graduation-cap post__icon"></i>Tin tức
             </div>
-            <div class="post__button" data-target="#news-tab-2" data-slug="c-su-kien">
+            <div class="post__button" data-target="#news-tab-2" data-slug="su-kien">
                 <i class="uil uil-graduation-cap post__icon"></i>Sự kiện
             </div>
-            <div class="post__button" data-target="#news-tab-4" data-slug="c-cam-nang">
+            <div class="post__button" data-target="#news-tab-4" data-slug="cam-nang">
                 <i class="uil uil-graduation-cap post__icon"></i>Cẩm Nang
             </div>
             <div class="post__button-more server-moi">

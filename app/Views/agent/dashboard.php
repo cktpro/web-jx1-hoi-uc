@@ -21,28 +21,6 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-lg-3 mb-3">
-        <div class="stat-box">
-            <div class="stat-icon" style="background:rgba(40,167,69,.12);color:#28a745;">
-                <i class="fa fa-users"></i>
-            </div>
-            <div>
-                <div class="stat-val"><?= number_format($totalUsers) ?></div>
-                <div class="stat-lbl">Tổng user đăng ký</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-6 col-lg-3 mb-3">
-        <div class="stat-box">
-            <div class="stat-icon" style="background:rgba(220,53,69,.1);color:#dc3545;">
-                <i class="fa fa-download"></i>
-            </div>
-            <div>
-                <div class="stat-val"><?= number_format($downloadCount) ?></div>
-                <div class="stat-lbl">Lượt tải game</div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="u-card">

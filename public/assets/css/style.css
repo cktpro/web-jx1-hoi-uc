@@ -44,6 +44,9 @@ ul {
 a {
     text-decoration: none;
 }
+a:focus, a:active {
+    outline: none;
+}
 
 img {
     max-width: 100%;
@@ -57,14 +60,14 @@ body {
     /* background: #232323 url('../imgs/bg_test.png') top center no-repeat; */
     /* background: #656565 url('../imgs/bg-noel-2021-2.jpg') top center no-repeat; */
     /* background: #073832 url('../imgs/bg-newyear-2022.jpg') top center no-repeat; */
-    background: #073832 url('../imgs/bg_test.jpg') top center no-repeat;
+    background: #052535 url('../imgs/bg_test.jpg') top center no-repeat;
 }
 
 .wrapper-body {
     width: 100%;
     /* default */
     /* background-color: #232323; */
-    background-color: #656565;
+    background-color: #052535;
 }
 
 .wrapper-body.subpage {
@@ -273,6 +276,11 @@ header {
 
 .left__container-item {
     margin-bottom: 7px;
+    margin-left: 10px;
+}
+
+.left__container-item.download__container {
+    margin-left: -13px;
 }
 
 .download__container {
@@ -327,7 +335,6 @@ header {
     background: url('../imgs/bg-signup.png') top center no-repeat;
     width: 231px;
     height: 125px;
-    margin-left: 19px;
     position: relative;
 }
 
@@ -378,7 +385,6 @@ header {
     background: url('../imgs/daily-timeline.png') top center no-repeat;
     width: 231px;
     height: 391px;
-    margin-left: 19px;
 }
 
 .tabdaily {
@@ -749,10 +755,15 @@ ul.tab-sv li a {
 .post__tabs .post__button-more .more {
     color: #443300;
     float: right;
-    background: url('../imgs/btn-more.png') no-repeat;
-    background-size: 100%;
+    background: url('../imgs/btn-more.png') no-repeat center center;
+    background-size: contain;
     width: 74px;
-    height: 16px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    text-decoration: none;
 }
 
 .post__tabs .post__button-more .more:hover {
@@ -1111,7 +1122,7 @@ ul.list li:last-child {
     position: fixed;
     top: 486px;
     right: 170px;
-    display: block;
+    display: none;
     background: url(../imgs/bg-menu-right.png) no-repeat;
     overflow: hidden;
     width: 156px;
@@ -1666,7 +1677,7 @@ footer {
     }
     body {
         background: url('../imgs/bg-tablet.jpg') top center no-repeat;
-        background-size: cover;
+        background-size: 100% 100% !important;
     }
     .center__container {
         max-width: 100%;
@@ -1717,6 +1728,12 @@ footer {
         height: 63px;
         margin-top: 13px;
         margin-right: 4px;
+        outline: none;
+    }
+    .menu__mobile-item.btn-list .btn:focus,
+    .menu__mobile-item.btn-list .btn:active {
+        outline: none;
+        box-shadow: none;
     }
     .btn-download {
         background: url('../imgs/btn-download-tl.png') top center no-repeat;
@@ -1753,23 +1770,30 @@ footer {
         font-size: 18px;
     }
     .menu-dropdown-list li {
-        width: 210px;
-        height: 31px;
+        /* width: 210px; */
+        /* height: 31px; */
         position: relative;
         display: inline-block;
         border-bottom: solid 1px;
-        padding-bottom: 32px;
-        padding-top: 10px;
-        cursor:pointer;
+        /* padding-bottom: 32px; */
+        /* padding-top: 10px; */
+        cursor: pointer;
     }
     .menu-dropdown-list li a {
         color: #dec56f;
         font-weight: 500;
-        padding: 20px;
-        background: url('../imgs/emblem.png') center right no-repeat;
-        background-size: 20%;
-		top: 30;
-        right: 30;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px 10px 20px;
+    }
+    .menu-dropdown-list li a i {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        background: url('../imgs/emblem.png') center no-repeat;
+        background-size: contain;
+        flex-shrink: 0;
     }
     .showList .menu-dropdown-list {
         display: block;
@@ -1839,7 +1863,7 @@ footer {
         display: block;
     }
     .showMenu .menu-mobile {
-        right: 0;
+        right: 1%;
     }
     .menu-mobile {
         display: block;
@@ -1953,7 +1977,7 @@ footer {
 
 @media screen and (max-width: 768px) {
     body {
-        background: url('../imgs/bg-mobile.png') top center no-repeat;
+        background: #052535 url('../imgs/bg-mobile.png') top center no-repeat;
         background-size: cover;
         background-position-y: 16px;
     }
@@ -1997,7 +2021,7 @@ footer {
 
 @media screen and (max-width: 568px) {
     body {
-        background: url('../imgs/bg-mobile.png') top center no-repeat;
+        background: #052535 url('../imgs/bg-mobile.png') top center no-repeat;
         background-size: cover;
         background-position-y: 30px;
     }

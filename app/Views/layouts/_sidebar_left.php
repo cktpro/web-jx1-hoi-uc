@@ -21,7 +21,7 @@
     <div class="left__container-item user__container">
         <div class="user__btn-list">
             <a href="<?= htmlspecialchars($config['link_dangky'] ?? '#') ?>" target="_blank" class="user__btn-signup"></a>
-            <a href="/user/payment/bank" target="_blank" class="user__btn-payment"></a>
+            <a href="<?= htmlspecialchars($config['link_napthe'] ?? '/user/payment/bank') ?>" target="_blank" class="user__btn-payment"></a>
         </div>
         <div class="user__btn-alone">
             <a href="<?= htmlspecialchars($config['link_dangky'] ?? '#') ?>" target="_blank" class="user__btn-info"></a>
