@@ -39,8 +39,11 @@
                         <label for="postCont">Nội dung</label>
                         <textarea name="postCont" id="postCont" placeholder="Nội dung bài viết..."></textarea>
                     </div>
+                    <div id="slug-error" class="alert alert-danger d-none" role="alert">
+                        Slug đã tồn tại, vui lòng chỉnh lại trước khi đăng.
+                    </div>
                     <div class="d-flex">
-                        <button type="submit" class="btn btn-success mr-2" onclick="tinymce.triggerSave()">
+                        <button type="submit" class="btn btn-success mr-2" onclick="return submitPost()">
                             <i class="fa fa-save"></i> Đăng bài
                         </button>
                         <a href="/admin/posts" class="btn btn-outline-secondary">
@@ -53,7 +56,7 @@
     </div>
 </div>
 
-<script src="https://cdn.tiny.cloud/1/mmrg5bvj98v0ftxqz9i5mjnkkohbp8nhjlj02grpxawn4ugg/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.5/tinymce.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 function toSlug(str) {
     var map = {
@@ -81,8 +84,27 @@ function autoSlug() {
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('postSlug').addEventListener('input', function() {
         document.getElementById('slug-preview').textContent = '/' + this.value + '.html';
+        document.getElementById('slug-error').classList.add('d-none');
     });
 });
+
+function submitPost() {
+    tinymce.triggerSave();
+    var slug = document.getElementById('postSlug').value.trim();
+    if (!slug) { return true; }
+
+    var done = false;
+    $.post('/admin/ajax/posts/check-slug', { slug: slug }, function(r) {
+        if (r.exists) {
+            document.getElementById('slug-error').classList.remove('d-none');
+            document.getElementById('postSlug').focus();
+        } else {
+            document.querySelector('form').submit();
+        }
+        done = true;
+    }, 'json');
+    return false;
+}
 
 tinymce.init({
     selector: '#postCont',

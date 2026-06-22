@@ -85,7 +85,7 @@
     </div>
 </div>
 
-<script src="https://cdn.tiny.cloud/1/mmrg5bvj98v0ftxqz9i5mjnkkohbp8nhjlj02grpxawn4ugg/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.5/tinymce.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="/assets/js/jquery-4.0.0.min.js"></script>
 <script>
 tinymce.init({
@@ -146,23 +146,34 @@ function savePost() {
     tinymce.triggerSave();
     var $btn = $('button[onclick="savePost()"]');
     var $msg = $('#save-msg');
+    var slug = $('#postSlug').val().trim();
 
     $btn.prop('disabled', true);
-    $msg.removeClass('text-success text-danger').html('<i class="fa fa-spinner fa-spin"></i> Đang lưu...');
+    $msg.removeClass('text-success text-danger').html('<i class="fa fa-spinner fa-spin"></i> Đang kiểm tra...');
 
-    $.post('/admin/ajax/posts/edit/<?= $post['ID'] ?>', {
-        postCategory: $('#postCategory').val(),
-        postTitle:    $('#postTitle').val(),
-        postSlug:     $('#postSlug').val(),
-        postCont:     $('#postCont').val(),
-    }, function(r) {
-        if (r.status) {
-            $msg.addClass('text-success').html('<i class="fa fa-check"></i> ' + r.msg);
-        } else {
-            $msg.addClass('text-danger').html('<i class="fa fa-times"></i> ' + r.msg);
+    $.post('/admin/ajax/posts/check-slug', { slug: slug, exclude_id: <?= $post['ID'] ?> }, function(r) {
+        if (r.exists) {
+            $msg.addClass('text-danger').html('<i class="fa fa-times"></i> Slug đã tồn tại, vui lòng chỉnh lại');
+            $btn.prop('disabled', false);
+            $('#postSlug').focus();
+            return;
         }
-        $btn.prop('disabled', false);
-        setTimeout(() => $msg.html(''), 3000);
+
+        $msg.removeClass('text-danger').html('<i class="fa fa-spinner fa-spin"></i> Đang lưu...');
+        $.post('/admin/ajax/posts/edit/<?= $post['ID'] ?>', {
+            postCategory: $('#postCategory').val(),
+            postTitle:    $('#postTitle').val(),
+            postSlug:     slug,
+            postCont:     $('#postCont').val(),
+        }, function(r) {
+            if (r.status) {
+                $msg.addClass('text-success').html('<i class="fa fa-check"></i> ' + r.msg);
+            } else {
+                $msg.addClass('text-danger').html('<i class="fa fa-times"></i> ' + r.msg);
+            }
+            $btn.prop('disabled', false);
+            setTimeout(() => $msg.html(''), 3000);
+        }, 'json');
     }, 'json');
 }
 </script>

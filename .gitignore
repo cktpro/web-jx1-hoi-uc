@@ -2,3 +2,5 @@
 public/web.config
 storage/siteconfig.json
 .claude/
+*.7z
+*.zip

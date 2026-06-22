@@ -4,7 +4,7 @@ $linkHotro      = $config['link_hotro']      ?? '#';
 $linkCongdong   = $config['link_congdong']   ?? '#';
 $linkTaigame    = $config['taigame']         ?? '#';
 $linkTaigameios = $config['taigameios']      ?? '#';
-$logo           = $config['logo_Img']        ?? '/assets/imgs/logo.png';
+$logo           = $config['logo_Img']        ?? '/assets/imgs/logo.webp';
 ?>
 <header>
     <div class="header">

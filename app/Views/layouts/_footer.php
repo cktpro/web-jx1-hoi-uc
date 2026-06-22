@@ -12,17 +12,19 @@
     <div class="ft-inner">
 
         <div class="ft-col ft-brand">
-            <div class="ft-logo"><?= htmlspecialchars($config['title'] ?? 'JX1') ?></div>
+            <div class="ft-logo">
+                <a href="/"><img src="/assets/imgs/logo.webp" alt="<?= htmlspecialchars($config['title'] ?? 'Game') ?>"></a>
+            </div>
             <p class="ft-desc"><?= htmlspecialchars($config['descr'] ?? 'Game nhập vai kiếm hiệp hàng đầu Việt Nam') ?></p>
             <div class="ft-social">
                 <?php if (!empty($config['link_hotro'])): ?>
-                <a href="<?= htmlspecialchars($config['link_hotro']) ?>" target="_blank" title="Fanpage"><i class="fa fa-facebook"></i></a>
+                <a href="<?= htmlspecialchars($config['link_hotro']) ?>" target="_blank" title="Fanpage"><i class="fa-brands fa-facebook"></i></a>
                 <?php endif; ?>
                 <?php if (!empty($config['link_congdong'])): ?>
-                <a href="<?= htmlspecialchars($config['link_congdong']) ?>" target="_blank" title="Cộng đồng"><i class="fa fa-users"></i></a>
+                <a href="<?= htmlspecialchars($config['link_congdong']) ?>" target="_blank" title="Cộng đồng"><i class="fa-solid fa-users"></i></a>
                 <?php endif; ?>
                 <?php if (!empty($config['link_huongdan'])): ?>
-                <a href="<?= htmlspecialchars($config['link_huongdan']) ?>" target="_blank" title="YouTube"><i class="fa fa-youtube-play"></i></a>
+                <a href="<?= htmlspecialchars($config['link_huongdan']) ?>" target="_blank" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
                 <?php endif; ?>
             </div>
         </div>
@@ -63,12 +65,12 @@
             <div class="ft-download">
                 <?php if (!empty($config['taigame'])): ?>
                 <a href="<?= htmlspecialchars($config['taigame']) ?>" target="_blank" class="ft-dl-btn a-link-download">
-                    <i class="fa fa-android"></i> Android / PC
+                    <i class="fa-brands fa-google-play"></i> Android
                 </a>
                 <?php endif; ?>
                 <?php if (!empty($config['taigameios'])): ?>
                 <a href="<?= htmlspecialchars($config['taigameios']) ?>" target="_blank" class="ft-dl-btn a-link-download-miniclient">
-                    <i class="fa fa-apple"></i> iOS / Mini Client
+                    <i class="fa-brands fa-app-store-ios"></i> iOS 
                 </a>
                 <?php endif; ?>
             </div>
@@ -87,13 +89,7 @@
 </footer>
 
 <style>
-footer {
-    background: url('/assets/imgs/bg-footer.png') top center no-repeat, #0e0b07;
-    background-size: auto, auto;
-    height: auto !important;
-    width: 100%;
-    margin-top: 0;
-}
+
 .ft-inner {
     max-width: 960px;
     margin: 0 auto;
@@ -107,13 +103,12 @@ footer {
 .ft-brand { flex: 1.5; }
 
 .ft-logo {
-    font-size: 20px;
-    font-weight: 800;
-    color: #d4a843;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    font-family: serif;
+    margin-bottom: 12px;
+}
+.ft-logo img {
+    max-height: 110px;
+    width: auto;
+    display: block;
 }
 .ft-desc {
     color: #8a7a5a;

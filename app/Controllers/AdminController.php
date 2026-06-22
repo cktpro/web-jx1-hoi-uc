@@ -113,6 +113,19 @@ class AdminController extends Controller {
         $this->redirect('/admin/posts');
     }
 
+    public function checkSlugAjax(): void {
+        $this->authAdmin();
+        $slug      = trim($_POST['slug'] ?? '');
+        $excludeId = (int)($_POST['exclude_id'] ?? 0);
+
+        if (!$slug) {
+            $this->json(['exists' => false]);
+        }
+
+        $exists = (new Post(db_portal()))->slugExists($slug, $excludeId);
+        $this->json(['exists' => $exists]);
+    }
+
     public function editPostAjax(int $id): void {
         $this->authAdmin();
         $title    = trim($_POST['postTitle'] ?? '');

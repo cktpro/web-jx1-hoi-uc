@@ -96,6 +96,7 @@ $router->get('/admin/posts/edit/{id}', [AdminController::class, 'editPostForm'])
 $router->post('/admin/posts/edit/{id}', [AdminController::class, 'editPost']);
 $router->post('/admin/ajax/posts/edit/{id}', [AdminController::class, 'editPostAjax']);
 $router->post('/admin/ajax/posts/featured', [AdminController::class, 'featuredToggleAjax']);
+$router->post('/admin/ajax/posts/check-slug', [AdminController::class, 'checkSlugAjax']);
 $router->get('/admin/posts/delete/{id}', [AdminController::class, 'deletePost']);
 $router->get('/admin/config', [AdminController::class, 'config']);
 $router->post('/admin/ajax/config/save', [AdminController::class, 'configSaveAjax']);

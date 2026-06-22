@@ -9,11 +9,13 @@
     <meta property="og:title" content="<?= htmlspecialchars($config['title'] ?? APP_NAME) ?>">
     <meta property="og:description" content="<?= htmlspecialchars($config['descr'] ?? '') ?>">
     <meta property="og:image" content="<?= htmlspecialchars($config['og_image'] ?? '') ?>">
-    <link rel="shortcut icon" href="/assets/imgs/favicon.ico">
+    <link rel="shortcut icon" href="/favicons/favicon.ico">
     <title><?= htmlspecialchars($config['title'] ?? APP_NAME) ?></title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/jquery.mCustomScrollbar.min.css">
     <link rel="stylesheet" href="/assets/css/swiper-bundle.min.css">
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <style>
         /* Slide navigation buttons */
@@ -81,7 +83,7 @@
         /* Mobile sections: ẩn trên desktop, hiện trên mobile */
         .mobile-sections { display: none; }
         @media screen and (max-width: 992px) {
-            .mobile-sections { display: block; }
+            .mobile-sections { display: block;width: 100%; }
 
             /* Top section: download + user + navbar */
             .mobile-top-sections {
@@ -91,6 +93,7 @@
             }
             .mobile-left-top {
                 display: flex;
+                flex-direction: column-reverse;
                 justify-content: space-evenly;
                 align-items: center;
                 margin: 10px auto;

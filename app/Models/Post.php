@@ -36,6 +36,15 @@ class Post extends Model {
         return $this->queryOne('SELECT * FROM NewsTables WHERE Slug = ?', [$slug]);
     }
 
+    public function slugExists(string $slug, int $excludeId = 0): bool {
+        if ($excludeId > 0) {
+            $row = $this->queryOne('SELECT ID FROM NewsTables WHERE Slug = ? AND ID <> ?', [$slug, $excludeId]);
+        } else {
+            $row = $this->queryOne('SELECT ID FROM NewsTables WHERE Slug = ?', [$slug]);
+        }
+        return $row !== null;
+    }
+
     public function create(array $data): bool {
         $slug = $data['slug'] ?? url_slug($data['title'] ?? '');
         return $this->execute(
