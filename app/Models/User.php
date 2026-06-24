@@ -172,7 +172,7 @@ class User extends Model {
         $date     = date('Y-m-d H:i:s');
         $roleName = $roleId === 3 ? 'SuperAgent' : 'Agent';
         return $this->execute(
-            'INSERT INTO LoginTables (LoginName, Password, Phone, Status, Date, ActiveRoleID, ActiveRoleName, LastServerLogin) VALUES (?, ?, ?, 1, ?, ?, ?, 0)',
+            'INSERT INTO LoginTables (LoginName, Password, Phone, Status, Date, ActiveRoleID, ActiveRoleName, LastServerLogin) VALUES (?, ?, ?, 0, ?, ?, ?, 0)',
             [$username, $passHash, $phone, $date, $roleId, $roleName]
         );
     }

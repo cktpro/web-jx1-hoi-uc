@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
+<?php
+$logo           = $config['logo_Img']        ?? '/assets/imgs/logo.webp';
+?>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,7 +23,7 @@
 <form method="post" onsubmit="ajaxRegister(); return false;" class="form-signin">
     <div class="bg-light border rounded p-4 m-3">
         <div class="avatar">
-            <img src="/assets/img/logo.png" alt="Logo">
+            <img src="<?= htmlspecialchars($logo) ?>" alt="Logo">
         </div>
         <h1 class="h3 m-3 font-weight-normal">Đăng ký tài khoản</h1>
 
