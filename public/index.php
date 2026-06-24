@@ -108,6 +108,14 @@ $router->post('/admin/slide', [AdminController::class, 'slideSave']);
 $router->get('/admin/hoatdong', [AdminController::class, 'hoatdong']);
 $router->post('/admin/hoatdong/save', [AdminController::class, 'hoatdongSave']);
 $router->get('/admin/hoatdong/delete/{id}', [AdminController::class, 'hoatdongDelete']);
+$router->get('/admin/admins', [AdminController::class, 'admins']);
+$router->post('/admin/ajax/admins/create', [AdminController::class, 'adminCreateAjax']);
+$router->post('/admin/ajax/admins/delete', [AdminController::class, 'adminDeleteAjax']);
+$router->get('/admin/agents', [AdminController::class, 'agents']);
+$router->post('/admin/ajax/agents/create', [AdminController::class, 'agentCreateAjax']);
+$router->post('/admin/ajax/agents/topup', [AdminController::class, 'agentTopupAjax']);
+$router->post('/admin/ajax/agents/delete', [AdminController::class, 'agentDeleteAjax']);
+$router->post('/admin/ajax/agents/set-role', [AdminController::class, 'agentSetRoleAjax']);
 
 // ── Game admin ────────────────────────────────────────────────
 $router->get('/game-admin/login', [GameAdminController::class, 'loginForm']);

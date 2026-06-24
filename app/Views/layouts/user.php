@@ -3,8 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="keywords" content="<?= htmlspecialchars($config['keywords'] ?? '') ?>">
+    <meta name="description" content="<?= htmlspecialchars($config['descr'] ?? '') ?>">
+    <meta property="og:title" content="<?= htmlspecialchars($config['title'] ?? APP_NAME) ?>">
+    <meta property="og:description" content="<?= htmlspecialchars($config['descr'] ?? '') ?>">
+    <meta property="og:image" content="<?= htmlspecialchars($config['og_image'] ?? '') ?>">
     <title>Tài khoản | <?= htmlspecialchars($config['title'] ?? APP_NAME) ?></title>
-    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="<?= htmlspecialchars($config['favicon'] ?? '/favicon.ico') ?>">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="/assets/js/jquery-4.0.0.min.js"></script>

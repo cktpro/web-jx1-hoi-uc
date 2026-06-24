@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Admin Panel – JX1 Game</title>
-    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="robots" content="noindex, nofollow">
+    <?php $_cfg = siteconfig_load(); ?>
+    <title>Admin Panel – <?= htmlspecialchars($_cfg['title'] ?? APP_NAME) ?></title>
+    <link rel="shortcut icon" href="<?= htmlspecialchars($_cfg['favicon'] ?? '/favicon.ico') ?>">
     <link rel="stylesheet" href="/assets/admin/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/admin/font-awesome/css/font-awesome.min.css">
     <style>
@@ -94,6 +96,48 @@
         .stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1; color: #212529; }
         .stat-label { font-size: 12px; color: #6c757d; margin-top: 2px; }
 
+        /* Responsive */
+        #hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            margin-right: 10px;
+        }
+        #hamburger span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #495057;
+            margin: 4px 0;
+            border-radius: 2px;
+            transition: .2s;
+        }
+        #sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 199;
+        }
+        #sidebar-overlay.open { display: block; }
+
+        @media (max-width: 768px) {
+            #hamburger { display: block; }
+            #sidebar {
+                position: fixed;
+                top: 0; left: -250px;
+                height: 100%;
+                width: 230px;
+                z-index: 200;
+                transition: left .25s ease;
+                overflow-y: auto;
+            }
+            #sidebar.open { left: 0; }
+            .p-4 { padding: 1rem !important; }
+        }
+
         /* Tables */
         .table thead th {
             font-size: 11px;
@@ -107,8 +151,11 @@
         }
         .table td { font-size: 13px; vertical-align: middle; }
     </style>
+    <script src="/assets/admin/js/jquery-2.1.1.js"></script>
+    <script src="/assets/admin/js/bootstrap.min.js"></script>
 </head>
 <body>
+<div id="sidebar-overlay"></div>
 <div class="d-flex">
     <!-- Sidebar -->
     <nav id="sidebar">
@@ -141,6 +188,9 @@
             </li>
         </ul>
 
+        <?php $_isFullAdmin = (int)($_SESSION['blog_admin_perm'] ?? 1) === 1; ?>
+
+        <?php if ($_isFullAdmin): ?>
         <div class="sidebar-divider"></div>
         <div class="sidebar-heading">Cấu hình</div>
         <ul class="nav flex-column">
@@ -171,6 +221,29 @@
         </ul>
 
         <div class="sidebar-divider"></div>
+        <div class="sidebar-heading">Hệ thống</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <?= str_contains($_SERVER['REQUEST_URI'], '/admin/admins') ? 'active' : '' ?>"
+                   href="/admin/admins">
+                    <i class="fa fa-user-secret"></i> Quản lý admin
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-heading">Đại lý</div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <?= str_contains($_SERVER['REQUEST_URI'], '/admin/agents') ? 'active' : '' ?>"
+                   href="/admin/agents">
+                    <i class="fa fa-users"></i> Quản lý đại lý
+                </a>
+            </li>
+        </ul>
+        <?php endif; ?>
+
+        <div class="sidebar-divider"></div>
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link" href="/admin/logout">
@@ -184,6 +257,9 @@
     <div class="d-flex flex-column flex-grow-1" style="min-width:0;">
         <!-- Top navbar -->
         <nav class="navbar d-flex align-items-center" id="topbar">
+            <button id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
             <span class="navbar-brand mb-0">
                 <i class="fa fa-circle text-success" style="font-size:8px;vertical-align:2px;margin-right:4px;"></i>
                 Admin Panel
@@ -210,7 +286,17 @@
     </div>
 </div>
 
-<script src="/assets/admin/js/jquery-2.1.1.js"></script>
-<script src="/assets/admin/js/bootstrap.min.js"></script>
+<script>
+(function(){
+    var sidebar  = document.getElementById('sidebar');
+    var overlay  = document.getElementById('sidebar-overlay');
+    var hamburger = document.getElementById('hamburger');
+    function open(){ sidebar.classList.add('open'); overlay.classList.add('open'); }
+    function close(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+    hamburger.addEventListener('click', function(){ sidebar.classList.contains('open') ? close() : open(); });
+    overlay.addEventListener('click', close);
+    document.querySelectorAll('#sidebar .nav-link').forEach(function(a){ a.addEventListener('click', close); });
+})();
+</script>
 </body>
 </html>

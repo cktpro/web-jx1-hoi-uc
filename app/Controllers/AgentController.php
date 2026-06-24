@@ -26,7 +26,7 @@ class AgentController extends Controller {
         if (!in_array($roleId, [1, 3])) {
             $this->json(['status' => false, 'msg' => 'Tài khoản không có quyền đại lý']);
         }
-        if ($account['Password'] !== $password) {
+        if ($account['Password'] !== strtoupper(md5($password))) {
             $this->json(['status' => false, 'msg' => 'Mật khẩu không chính xác']);
         }
 

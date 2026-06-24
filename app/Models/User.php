@@ -68,9 +68,14 @@ class User extends Model {
     }
 
     public function create(string $username, string $passHash, string $phone = ''): bool {
+                $status=0;
+        $date=date('Y-m-d H:i:s');
+        $activeRole=0;
+        $lastServerLogin=0;
+        $roleName = "Customer";
         return $this->execute(
-            'INSERT INTO LoginTables (LoginName, Password, Phone, Status) VALUES (?, ?, ?, 1)',
-            [$username, $passHash, $phone]
+            'INSERT INTO LoginTables (LoginName, Password, Phone, Status,Date,ActiveRoleID,ActiveRoleName,LastServerLogin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [$username, $passHash, $phone,$status,$date,$activeRole,$roleName,$lastServerLogin]
         );
     }
 
@@ -138,6 +143,64 @@ class User extends Model {
     public function getAllAgents(): array {
         return $this->query(
             $this->baseSelect() . ' WHERE l.ActiveRoleID = 1 ORDER BY l.ID DESC'
+        );
+    }
+
+    public function getAllAgentsAdmin(int $limit = 20, int $offset = 0, string $search = ''): array {
+        $base = $this->baseSelect() . ' WHERE l.ActiveRoleID IN (1,3)';
+        if ($search) {
+            return $this->query(
+                "$base AND l.LoginName LIKE ? ORDER BY l.ID DESC OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY",
+                ["%$search%"]
+            );
+        }
+        return $this->query("$base ORDER BY l.ID DESC OFFSET $offset ROWS FETCH NEXT $limit ROWS ONLY");
+    }
+
+    public function countAgentsAdmin(string $search = ''): int {
+        $where = 'ActiveRoleID IN (1,3)';
+        $row = $search
+            ? $this->queryOne("SELECT COUNT(*) AS c FROM LoginTables WHERE $where AND LoginName LIKE ?", ["%$search%"])
+            : $this->queryOne("SELECT COUNT(*) AS c FROM LoginTables WHERE $where");
+        return (int)($row['c'] ?? 0);
+    }
+
+    public function createAgent(string $username, string $passHash, string $phone, int $roleId): bool {
+        if ($this->usernameExists($username)) {
+            return false;
+        }
+        $date     = date('Y-m-d H:i:s');
+        $roleName = $roleId === 3 ? 'SuperAgent' : 'Agent';
+        return $this->execute(
+            'INSERT INTO LoginTables (LoginName, Password, Phone, Status, Date, ActiveRoleID, ActiveRoleName, LastServerLogin) VALUES (?, ?, ?, 1, ?, ?, ?, 0)',
+            [$username, $passHash, $phone, $date, $roleId, $roleName]
+        );
+    }
+
+    public function setRole(string $username, int $roleId): bool {
+        $roleName = match($roleId) {
+            1 => 'Agent',
+            3 => 'SuperAgent',
+            default => 'Customer',
+        };
+        return $this->execute(
+            'UPDATE LoginTables SET ActiveRoleID = ?, ActiveRoleName = ? WHERE LoginName = ?',
+            [$roleId, $roleName, $username]
+        );
+    }
+
+    public function deleteAgent(string $username): bool {
+        return $this->execute(
+            'DELETE FROM LoginTables WHERE LoginName = ? AND ActiveRoleID IN (1,3)',
+            [$username]
+        );
+    }
+
+    public function logAdminTopup(int $userId, string $username, int $amount, int $before, int $after, string $actionBy): bool {
+        return $this->execute(
+            "INSERT INTO RechageLogs (UserID, UserName, CoinValue, BeforeCoin, AfterCoin, RechageType, RechageDate, Status, ActionBy)
+             VALUES (?, ?, ?, ?, ?, N'ADMIN', GETDATE(), 1, ?)",
+            [$userId, $username, $amount, $before, $after, $actionBy]
         );
     }
 

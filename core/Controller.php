@@ -34,6 +34,13 @@ class Controller {
         }
     }
 
+    protected function authFullAdmin(): void {
+        $this->authAdmin();
+        if ((int)($_SESSION['blog_admin_perm'] ?? 1) !== 1) {
+            $this->redirect('/admin');
+        }
+    }
+
     protected function authAgent(): void {
         if (empty($_SESSION['agent'])) {
             $this->redirect('/dai-ly/login');

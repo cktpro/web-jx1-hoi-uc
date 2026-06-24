@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Game Admin Panel</title>
-    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="robots" content="noindex, nofollow">
+    <?php $_cfg = siteconfig_load(); ?>
+    <title>Game Admin Panel – <?= htmlspecialchars($_cfg['title'] ?? APP_NAME) ?></title>
+    <link rel="shortcut icon" href="<?= htmlspecialchars($_cfg['favicon'] ?? '/favicon.ico') ?>">
     <link rel="stylesheet" href="/assets/admin/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/admin/css/style.css">
     <script src="/assets/admin/js/jquery.min.js"></script>

@@ -37,6 +37,8 @@ class HomeController extends Controller {
         $config  = siteconfig_load();
         $this->view('layouts/main', [
             'config'       => $config,
+            'slides'       => [],
+            'slidesBottom' => [],
             'keyword'      => $keyword,
             'results'      => $results,
             'content_view' => 'home/search',

@@ -17,16 +17,17 @@ class AdminController extends Controller {
         $stmt->execute([$username]);
         $row = $stmt->fetch();
 
-        if (!$row || $row['Password'] !== $password) {
+        if (!$row || $row['Password'] !== strtoupper(md5($password))) {
             $this->json(['code' => 1, 'msg' => 'Sai tên đăng nhập hoặc mật khẩu']);
         }
 
-        $_SESSION['blog_admin'] = $row['LoginName'];
+        $_SESSION['blog_admin']      = $row['LoginName'];
+        $_SESSION['blog_admin_perm'] = (int)($row['Premission'] ?? 1);
         $this->json(['code' => 0, 'msg' => '/admin']);
     }
 
     public function logout(): void {
-        unset($_SESSION['blog_admin']);
+        unset($_SESSION['blog_admin'], $_SESSION['blog_admin_perm']);
         $this->redirect('/admin/login');
     }
 
@@ -154,7 +155,7 @@ class AdminController extends Controller {
     }
 
     public function config(): void {
-        $this->authAdmin();
+        $this->authFullAdmin();
         $this->view('layouts/admin', [
             'cfg'          => siteconfig_load(),
             'content_view' => 'admin/config',
@@ -162,7 +163,7 @@ class AdminController extends Controller {
     }
 
     public function configSaveAjax(): void {
-        $this->authAdmin();
+        $this->authFullAdmin();
         $current = siteconfig_load();
         $fields  = ['taigame', 'taigameios', 'link_dangky', 'link_hotro', 'img_maintenance', 'img_tongkim', 'link_tongkim'];
         foreach ($fields as $f) {
@@ -190,7 +191,7 @@ class AdminController extends Controller {
     }
 
     public function seo(): void {
-        $this->authAdmin();
+        $this->authFullAdmin();
         $this->view('layouts/admin', [
             'cfg'          => siteconfig_load(),
             'content_view' => 'admin/seo',
@@ -198,7 +199,7 @@ class AdminController extends Controller {
     }
 
     public function seoSaveAjax(): void {
-        $this->authAdmin();
+        $this->authFullAdmin();
         $current = siteconfig_load();
         $fields  = ['title','descr','keywords','og_image','phone','tips',
                     'taigame','taigameios','link_dangky','link_napthe','link_hotro',
@@ -215,7 +216,7 @@ class AdminController extends Controller {
     }
 
     public function faviconUploadAjax(): void {
-        $this->authAdmin();
+        $this->authFullAdmin();
         if (empty($_FILES['favicon']) || $_FILES['favicon']['error'] !== UPLOAD_ERR_OK) {
             $this->json(['status' => false, 'msg' => 'Không nhận được file']);
         }
@@ -232,6 +233,9 @@ class AdminController extends Controller {
         if (!move_uploaded_file($file['tmp_name'], $dest)) {
             $this->json(['status' => false, 'msg' => 'Lưu file thất bại, kiểm tra quyền ghi thư mục']);
         }
+        $cfg = siteconfig_load();
+        $cfg['favicon'] = '/favicon.ico';
+        siteconfig_save($cfg);
         $this->json(['status' => true, 'msg' => 'Đã cập nhật favicon']);
     }
 
@@ -273,5 +277,171 @@ class AdminController extends Controller {
         array_splice($list, $id, 1);
         hoatdong_save($list);
         $this->redirect('/admin/hoatdong');
+    }
+
+    public function agents(): void {
+        $this->authFullAdmin();
+        $search = trim($_GET['q'] ?? '');
+        $page   = max(1, (int)($_GET['page'] ?? 1));
+        $limit  = 20;
+        $offset = ($page - 1) * $limit;
+
+        $userModel = new User(db_portal());
+        $agents    = $userModel->getAllAgentsAdmin($limit, $offset, $search);
+        $total     = $userModel->countAgentsAdmin($search);
+
+        $this->view('layouts/admin', [
+            'agents'       => $agents,
+            'total'        => $total,
+            'page'         => $page,
+            'limit'        => $limit,
+            'search'       => $search,
+            'content_view' => 'admin/agents',
+        ]);
+    }
+
+    public function agentCreateAjax(): void {
+        $this->authAdmin();
+        $username = trim($_POST['username'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+        $phone    = trim($_POST['phone'] ?? '');
+        $roleId   = (int)($_POST['role'] ?? 1);
+
+        if (!$username || !$password) {
+            $this->json(['status' => false, 'msg' => 'Vui lòng nhập đầy đủ thông tin']);
+        }
+        if (strlen($password) < 6) {
+            $this->json(['status' => false, 'msg' => 'Mật khẩu phải từ 6 ký tự']);
+        }
+        if (!in_array($roleId, [1, 3])) {
+            $this->json(['status' => false, 'msg' => 'Loại đại lý không hợp lệ']);
+        }
+
+        $userModel = new User(db_portal());
+        if ($userModel->usernameExists($username)) {
+            $this->json(['status' => false, 'msg' => 'Tên tài khoản đã tồn tại']);
+        }
+
+        $userModel->createAgent($username, strtoupper(md5($password)), $phone, $roleId);
+        $this->json(['status' => true, 'msg' => "Đã tạo tài khoản đại lý $username"]);
+    }
+
+    public function admins(): void {
+        $this->authFullAdmin();
+        $db    = db_portal();
+        $admins = $db->query('SELECT * FROM CsmLogins ORDER BY ID DESC')->fetchAll();
+        $this->view('layouts/admin', [
+            'admins'       => $admins,
+            'content_view' => 'admin/admins',
+        ]);
+    }
+
+    public function adminCreateAjax(): void {
+        $this->authFullAdmin();
+        $username = trim($_POST['username'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+
+        if (!$username || !$password) {
+            $this->json(['status' => false, 'msg' => 'Vui lòng nhập đầy đủ thông tin']);
+        }
+        if (strlen($password) < 6) {
+            $this->json(['status' => false, 'msg' => 'Mật khẩu phải từ 6 ký tự']);
+        }
+
+        $db  = db_portal();
+        $row = $db->prepare('SELECT ID FROM CsmLogins WHERE LoginName = ?');
+        $row->execute([$username]);
+        if ($row->fetch()) {
+            $this->json(['status' => false, 'msg' => 'Tên tài khoản đã tồn tại']);
+        }
+
+        $stmt = $db->prepare('INSERT INTO CsmLogins (LoginName, Password, Premission, RegTime) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$username, strtoupper(md5($password)), 2, date('Y-m-d H:i:s')]);
+        $this->json(['status' => true, 'msg' => "Đã tạo admin $username (quyền tin tức)"]);
+    }
+
+    public function adminDeleteAjax(): void {
+        $this->authFullAdmin();
+        $username = trim($_POST['username'] ?? '');
+
+        if (!$username) {
+            $this->json(['status' => false, 'msg' => 'Thiếu tên tài khoản']);
+        }
+        if ($username === ($_SESSION['blog_admin'] ?? '')) {
+            $this->json(['status' => false, 'msg' => 'Không thể xoá tài khoản đang đăng nhập']);
+        }
+
+        $db   = db_portal();
+        $stmt = $db->prepare('SELECT Premission FROM CsmLogins WHERE LoginName = ?');
+        $stmt->execute([$username]);
+        $target = $stmt->fetch();
+        if (!$target) {
+            $this->json(['status' => false, 'msg' => 'Tài khoản không tồn tại']);
+        }
+        if ((int)($target['Premission'] ?? 1) === 1) {
+            $this->json(['status' => false, 'msg' => 'Không thể xoá admin full quyền']);
+        }
+
+        $db->prepare('DELETE FROM CsmLogins WHERE LoginName = ?')->execute([$username]);
+        $this->json(['status' => true, 'msg' => "Đã xoá admin $username"]);
+    }
+
+    public function agentSetRoleAjax(): void {
+        $this->authAdmin();
+        $username = trim($_POST['username'] ?? '');
+        $roleId   = (int)($_POST['role'] ?? 0);
+
+        if (!$username || !in_array($roleId, [1, 3])) {
+            $this->json(['status' => false, 'msg' => 'Dữ liệu không hợp lệ']);
+        }
+
+        $userModel = new User(db_portal());
+        if (!$userModel->findByUsername($username)) {
+            $this->json(['status' => false, 'msg' => 'Tài khoản không tồn tại']);
+        }
+
+        $userModel->setRole($username, $roleId);
+        $label = $roleId === 3 ? 'Đại lý tổng' : 'Đại lý';
+        $this->json(['status' => true, 'msg' => "Đã cập nhật quyền $username thành $label"]);
+    }
+
+    public function agentDeleteAjax(): void {
+        $this->authAdmin();
+        $username = trim($_POST['username'] ?? '');
+        if (!$username) {
+            $this->json(['status' => false, 'msg' => 'Thiếu tên tài khoản']);
+        }
+        $userModel = new User(db_portal());
+        if (!$userModel->findByUsername($username)) {
+            $this->json(['status' => false, 'msg' => 'Tài khoản không tồn tại']);
+        }
+        $userModel->deleteAgent($username);
+        $this->json(['status' => true, 'msg' => "Đã xoá đại lý $username"]);
+    }
+
+    public function agentTopupAjax(): void {
+        $this->authAdmin();
+        $username = trim($_POST['username'] ?? '');
+        $amount   = (int)($_POST['amount'] ?? 0);
+
+        if (!$username || $amount <= 0) {
+            $this->json(['status' => false, 'msg' => 'Vui lòng nhập đầy đủ thông tin']);
+        }
+
+        $userModel = new User(db_portal());
+        $account   = $userModel->findByUsername($username);
+        if (!$account) {
+            $this->json(['status' => false, 'msg' => 'Tài khoản không tồn tại']);
+        }
+        if (!in_array((int)($account['ActiveRoleID'] ?? 0), [1, 3])) {
+            $this->json(['status' => false, 'msg' => 'Tài khoản này không phải đại lý']);
+        }
+
+        $before = $userModel->getKCoin($username);
+        $after  = $before + $amount;
+        $userModel->updateCoins($username, $amount);
+        $userModel->logAdminTopup((int)$account['ID'], $username, $amount, $before, $after, $_SESSION['blog_admin'] ?? 'admin');
+
+        $this->json(['status' => true, 'msg' => "Đã nạp $amount KNB cho $username. Số dư: $after KNB"]);
     }
 }

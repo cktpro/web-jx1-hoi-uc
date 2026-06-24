@@ -43,6 +43,7 @@ class AuthController extends Controller {
         $confirm  = trim($_POST['confirm'] ?? '');
         $phone    = trim($_POST['phone'] ?? '');
 
+
         if (!$username || !$password) {
             $this->json(['status' => false, 'msg' => 'Vui lòng nhập đầy đủ thông tin']);
         }
@@ -64,7 +65,7 @@ class AuthController extends Controller {
             $this->json(['status' => false, 'msg' => 'Tên đăng nhập đã tồn tại']);
         }
 
-        $userModel->create($username, strtoupper(md5($password)), $phone);
+        $userModel->create($username, strtoupper(md5($password))) ;
         $this->json(['status' => true, 'msg' => 'Đăng ký thành công!']);
     }
 

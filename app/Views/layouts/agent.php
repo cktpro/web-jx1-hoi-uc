@@ -3,8 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="keywords" content="<?= htmlspecialchars($config['keywords'] ?? '') ?>">
+    <meta name="description" content="<?= htmlspecialchars($config['descr'] ?? '') ?>">
+    <meta property="og:title" content="<?= htmlspecialchars($config['title'] ?? APP_NAME) ?>">
+    <meta property="og:description" content="<?= htmlspecialchars($config['descr'] ?? '') ?>">
+    <meta property="og:image" content="<?= htmlspecialchars($config['og_image'] ?? '') ?>">
     <title>Đại lý | <?= htmlspecialchars($config['title'] ?? APP_NAME) ?></title>
-    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="<?= htmlspecialchars($config['favicon'] ?? '/favicon.ico') ?>">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="/assets/js/jquery-4.0.0.min.js"></script>
@@ -94,13 +100,30 @@
         .u-alert-success { background:#eafaf0;border:1px solid #b7e4c7;color:#2d7a4f; }
         .u-alert-danger  { background:#fff0f0;border:1px solid #f5c2c7;color:#c0392b; }
 
-        @media (max-width:768px) { .u-sidebar { display:none; } .u-content { padding:16px; } }
+        .u-hamburger { display:none; background:none; border:none; padding:4px 8px; cursor:pointer; margin-right:12px; }
+        .u-hamburger span { display:block; width:22px; height:2px; background:#333; margin:5px 0; border-radius:2px; transition:.2s; }
+        .u-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:199; }
+        .u-overlay.open { display:block; }
+
+        @media (max-width:768px) {
+            .u-hamburger { display:block; }
+            .u-sidebar {
+                position:fixed; top:0; left:-240px; height:100%; width:220px;
+                z-index:200; transition:left .25s ease; padding-top:56px;
+            }
+            .u-sidebar.open { left:0; }
+            .u-content { padding:16px; }
+        }
     </style>
 </head>
 <body>
 
+<div class="u-overlay" id="menuOverlay"></div>
 <div class="u-topbar">
     <?php $isSA = (int)($_SESSION['agent_role'] ?? 0) === 3; ?>
+    <button class="u-hamburger" id="menuToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
     <a href="/dai-ly" class="brand">JX1 <span>Portal</span>
         <?php if ($isSA): ?>
             <span class="badge-super">ĐẠI LÝ TỔNG</span>
@@ -155,5 +178,17 @@
     </main>
 </div>
 
+<script>
+(function(){
+    var toggle = document.getElementById('menuToggle');
+    var sidebar = document.querySelector('.u-sidebar');
+    var overlay = document.getElementById('menuOverlay');
+    function open(){ sidebar.classList.add('open'); overlay.classList.add('open'); }
+    function close(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+    toggle.addEventListener('click', function(){ sidebar.classList.contains('open') ? close() : open(); });
+    overlay.addEventListener('click', close);
+    document.querySelectorAll('.u-sidebar a.nav-item').forEach(function(a){ a.addEventListener('click', close); });
+})();
+</script>
 </body>
 </html>

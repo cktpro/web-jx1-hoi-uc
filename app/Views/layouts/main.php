@@ -9,7 +9,7 @@
     <meta property="og:title" content="<?= htmlspecialchars($config['title'] ?? APP_NAME) ?>">
     <meta property="og:description" content="<?= htmlspecialchars($config['descr'] ?? '') ?>">
     <meta property="og:image" content="<?= htmlspecialchars($config['og_image'] ?? '') ?>">
-    <link rel="shortcut icon" href="/favicons/favicon.ico">
+    <link rel="shortcut icon" href="<?= htmlspecialchars($config['favicon'] ?? '/favicon.ico') ?>">
     <title><?= htmlspecialchars($config['title'] ?? APP_NAME) ?></title>
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/css/jquery.mCustomScrollbar.min.css">
